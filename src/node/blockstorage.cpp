@@ -362,7 +362,11 @@ bool WriteUndoDataForBlock(const CBlockUndo& blockundo, BlockValidationState& st
     return true;
 }
 
-bool ReadBlockFromDisk(CBlock& block, const FlatFilePos& pos, const Consensus::Params& consensusParams)
+/* Generic implementation of block reading that can handle
+   both a block and its header.  */
+
+template<typename T>
+static bool ReadBlockOrHeader(T& block, const FlatFilePos& pos, const Consensus::Params& consensusParams)
 {
     block.SetNull();
 
@@ -380,7 +384,7 @@ bool ReadBlockFromDisk(CBlock& block, const FlatFilePos& pos, const Consensus::P
     }
 
     // Check the header
-    if (!CheckProofOfWork(block.GetHash(), block.nBits, consensusParams)) {
+    if (!CheckProofOfWork(block, consensusParams)) {
         return error("ReadBlockFromDisk: Errors in block header at %s", pos.ToString());
     }
 
@@ -392,7 +396,8 @@ bool ReadBlockFromDisk(CBlock& block, const FlatFilePos& pos, const Consensus::P
     return true;
 }
 
-bool ReadBlockFromDisk(CBlock& block, const CBlockIndex* pindex, const Consensus::Params& consensusParams)
+template<typename T>
+static bool ReadBlockOrHeader(T& block, const CBlockIndex* pindex, const Consensus::Params& consensusParams)
 {
     FlatFilePos blockPos;
     {
@@ -400,14 +405,29 @@ bool ReadBlockFromDisk(CBlock& block, const CBlockIndex* pindex, const Consensus
         blockPos = pindex->GetBlockPos();
     }
 
-    if (!ReadBlockFromDisk(block, blockPos, consensusParams)) {
+    if (!ReadBlockOrHeader(block, blockPos, consensusParams)) {
         return false;
     }
     if (block.GetHash() != pindex->GetBlockHash()) {
         return error("ReadBlockFromDisk(CBlock&, CBlockIndex*): GetHash() doesn't match index for %s at %s",
-                     pindex->ToString(), pindex->GetBlockPos().ToString());
+                pindex->ToString(), pindex->GetBlockPos().ToString());
     }
     return true;
+}
+
+bool ReadBlockFromDisk(CBlock& block, const FlatFilePos& pos, const Consensus::Params& consensusParams)
+{
+    return ReadBlockOrHeader(block, pos, consensusParams);
+}
+
+bool ReadBlockFromDisk(CBlock& block, const CBlockIndex* pindex, const Consensus::Params& consensusParams)
+{
+    return ReadBlockOrHeader(block, pindex, consensusParams);
+}
+
+bool ReadBlockHeaderFromDisk(CBlockHeader& block, const CBlockIndex* pindex, const Consensus::Params& consensusParams)
+{
+    return ReadBlockOrHeader(block, pindex, consensusParams);
 }
 
 bool ReadRawBlockFromDisk(std::vector<uint8_t>& block, const FlatFilePos& pos, const CMessageHeader::MessageStartChars& message_start)
@@ -427,18 +447,18 @@ bool ReadRawBlockFromDisk(std::vector<uint8_t>& block, const FlatFilePos& pos, c
 
         if (memcmp(blk_start, message_start, CMessageHeader::MESSAGE_START_SIZE)) {
             return error("%s: Block magic mismatch for %s: %s versus expected %s", __func__, pos.ToString(),
-                         HexStr(blk_start),
-                         HexStr(message_start));
+                    HexStr(blk_start),
+                    HexStr(message_start));
         }
 
         if (blk_size > MAX_SIZE) {
             return error("%s: Block data is larger than maximum deserialization size for %s: %s versus %s", __func__, pos.ToString(),
-                         blk_size, MAX_SIZE);
+                    blk_size, MAX_SIZE);
         }
 
         block.resize(blk_size); // Zeroing of memory is intentional here
         filein.read((char*)block.data(), blk_size);
-    } catch (const std::exception& e) {
+    } catch(const std::exception& e) {
         return error("%s: Read from block file failed: %s for %s", __func__, e.what(), pos.ToString());
     }
 
