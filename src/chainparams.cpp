@@ -417,8 +417,7 @@ public:
         consensus.BIP66Height = 0;
         consensus.CSVHeight = 0;
         consensus.SegwitHeight = 0;
-        consensus.MinBIP9WarningHeight = 0;
-
+        
         consensus.nAuxpowChainId = 0x0001;
         consensus.nAuxpowStartHeight = 0;
         consensus.fStrictChainId = true;
