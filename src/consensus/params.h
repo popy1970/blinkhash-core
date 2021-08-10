@@ -18,12 +18,15 @@ namespace Consensus {
 enum BuriedDeployment : int16_t {
     // buried deployments get negative values to avoid overlap with DeploymentPos
     DEPLOYMENT_HEIGHTINCB = std::numeric_limits<int16_t>::min(),
+    DEPLOYMENT_P2SH,
     DEPLOYMENT_CLTV,
     DEPLOYMENT_DERSIG,
     DEPLOYMENT_CSV,
     DEPLOYMENT_SEGWIT,
 };
-constexpr bool ValidDeployment(BuriedDeployment dep) { return dep <= DEPLOYMENT_SEGWIT; }
+constexpr bool ValidDeployment(BuriedDeployment dep) {
+    return DEPLOYMENT_HEIGHTINCB <= dep && dep <= DEPLOYMENT_SEGWIT;
+};
 
 enum DeploymentPos : uint16_t {
     DEPLOYMENT_TESTDUMMY,
@@ -31,7 +34,9 @@ enum DeploymentPos : uint16_t {
     // NOTE: Also add new deployments to VersionBitsDeploymentInfo in deploymentinfo.cpp
     MAX_VERSION_BITS_DEPLOYMENTS
 };
-constexpr bool ValidDeployment(DeploymentPos dep) { return dep < MAX_VERSION_BITS_DEPLOYMENTS; }
+constexpr bool ValidDeployment(DeploymentPos dep) {
+    return DEPLOYMENT_TESTDUMMY <= dep && dep <= DEPLOYMENT_TAPROOT;
+};
 
 /**
  * Struct for each individual consensus rule change using BIP9.
@@ -70,11 +75,10 @@ struct BIP9Deployment {
 struct Params {
     uint256 hashGenesisBlock;
     int nSubsidyHalvingInterval;
-    /* Block hash that is excepted from BIP16 enforcement */
-    uint256 BIP16Exception;
+    /** Block height at with BIP16 becomes active */
+    int BIP16Height;
     /** Block height and hash at which BIP34 becomes active */
     int BIP34Height;
-    uint256 BIP34Hash;
     /** Block height at which BIP65 becomes active */
     int BIP65Height;
     /** Block height at which BIP66 becomes active */
@@ -99,6 +103,7 @@ struct Params {
     /** Proof of work parameters */
     uint256 powLimit;
     bool fPowAllowMinDifficultyBlocks;
+    int64_t nMinDifficultySince;
     bool fPowNoRetargeting;
     int64_t nPowTargetSpacing;
     int64_t nPowTargetTimespan;
@@ -118,6 +123,8 @@ struct Params {
     int DeploymentHeight(BuriedDeployment dep) const
     {
         switch (dep) {
+        case DEPLOYMENT_P2SH:
+            return BIP16Height;
         case DEPLOYMENT_HEIGHTINCB:
             return BIP34Height;
         case DEPLOYMENT_CLTV:
@@ -131,6 +138,38 @@ struct Params {
         } // no default case, so the compiler can warn about missing cases
         return std::numeric_limits<int>::max();
     }
+
+    /** Auxpow parameters */
+    int32_t nAuxpowChainId;
+    int nAuxpowStartHeight;
+    bool fStrictChainId;
+    int nLegacyBlocksBefore; // -1 for "always allow"
+
+    /**
+     * Check whether or not minimum difficulty blocks are allowed
+     * with the given time stamp.
+     * @param nBlockTime Time of the block with minimum difficulty.
+     * @return True if it is allowed to have minimum difficulty.
+     */
+    bool AllowMinDifficultyBlocks(int64_t nBlockTime) const
+    {
+        if (!fPowAllowMinDifficultyBlocks)
+            return false;
+        return nBlockTime > nMinDifficultySince;
+    }
+
+    /**
+     * Check whether or not to allow legacy blocks at the given height.
+     * @param nHeight Height of the block to check.
+     * @return True if it is allowed to have a legacy version.
+     */
+    bool AllowLegacyBlocks(unsigned nHeight) const
+    {
+        if (nLegacyBlocksBefore < 0)
+            return true;
+        return static_cast<int> (nHeight) < nLegacyBlocksBefore;
+    }
+
 };
 
 } // namespace Consensus

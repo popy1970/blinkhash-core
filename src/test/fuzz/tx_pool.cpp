@@ -79,8 +79,9 @@ void SetMempoolConstraints(ArgsManager& args, FuzzedDataProvider& fuzzed_data_pr
                      ToString(fuzzed_data_provider.ConsumeIntegralInRange<unsigned>(0, 999)));
 }
 
-void Finish(FuzzedDataProvider& fuzzed_data_provider, MockedTxPool& tx_pool, CChainState& chainstate)
+void Finish(FuzzedDataProvider& fuzzed_data_provider, MockedTxPool& tx_pool, ChainstateManager& chainman)
 {
+    auto& chainstate = chainman.ActiveChainstate();
     WITH_LOCK(::cs_main, tx_pool.check(chainstate));
     {
         BlockAssembler::Options options;
@@ -119,6 +120,7 @@ FUZZ_TARGET_INIT(tx_pool_standard, initialize_tx_pool)
     FuzzedDataProvider fuzzed_data_provider(buffer.data(), buffer.size());
     const auto& node = g_setup->m_node;
     auto& chainstate = node.chainman->ActiveChainstate();
+    auto& chainman = *node.chainman;
 
     MockTime(fuzzed_data_provider, chainstate);
     SetMempoolConstraints(*node.args, fuzzed_data_provider);
@@ -284,7 +286,7 @@ FUZZ_TARGET_INIT(tx_pool_standard, initialize_tx_pool)
             }
         }
     }
-    Finish(fuzzed_data_provider, tx_pool, chainstate);
+    Finish(fuzzed_data_provider, tx_pool, chainman);
 }
 
 FUZZ_TARGET_INIT(tx_pool, initialize_tx_pool)
@@ -296,6 +298,7 @@ FUZZ_TARGET_INIT(tx_pool, initialize_tx_pool)
     FuzzedDataProvider fuzzed_data_provider(buffer.data(), buffer.size());
     const auto& node = g_setup->m_node;
     auto& chainstate = node.chainman->ActiveChainstate();
+    auto& chainman = *node.chainman;
 
     MockTime(fuzzed_data_provider, chainstate);
     SetMempoolConstraints(*node.args, fuzzed_data_provider);
@@ -342,6 +345,6 @@ FUZZ_TARGET_INIT(tx_pool, initialize_tx_pool)
             txids.push_back(tx->GetHash());
         }
     }
-    Finish(fuzzed_data_provider, tx_pool, chainstate);
+    Finish(fuzzed_data_provider, tx_pool, chainman);
 }
 } // namespace

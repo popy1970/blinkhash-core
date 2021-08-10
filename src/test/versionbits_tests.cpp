@@ -27,7 +27,7 @@ static const std::string StateName(ThresholdState state)
     return "";
 }
 
-static const Consensus::Params paramsDummy = Consensus::Params();
+static const Consensus::Params& paramsDummy = Consensus::Params();
 
 class TestConditionChecker : public AbstractThresholdConditionChecker
 {

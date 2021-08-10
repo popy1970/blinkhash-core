@@ -38,6 +38,11 @@ static std::vector<double> parseAsymptote(const std::string& str) {
 
 int main(int argc, char** argv)
 {
+    /* FIXME: Re-enable benchmarking after it has been fixed for auxpow.
+       See https://github.com/namecoin/namecoin-core/issues/273.  */
+    fprintf(stderr, "bench_bitcoin is disabled in Blinkhash/Auxpow\n");
+    return EXIT_SUCCESS;
+
     ArgsManager argsman;
     SetupBenchArgs(argsman);
     SHA256AutoDetect();
