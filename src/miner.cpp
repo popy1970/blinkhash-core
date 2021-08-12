@@ -122,7 +122,6 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
     nHeight = pindexPrev->nHeight + 1;
 
     const int32_t nChainId = chainparams.GetConsensus ().nAuxpowChainId;
-    const int32_t nVersion = 4;
     pblock->SetBaseVersion(4, nChainId);
     // FIXME: Active version bits after the always-auxpow fork!
     //pblock->nVersion = g_versionbitscache.ComputeBlockVersion(pindexPrev, chainparams.GetConsensus());
