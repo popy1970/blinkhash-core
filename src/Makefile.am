@@ -534,7 +534,37 @@ libbitcoin_consensus_a_SOURCES = \
   uint256.h \
   util/strencodings.cpp \
   util/strencodings.h \
-  version.h
+  version.h \
+	crypto/scrypt/scrypt.cpp \
+	crypto/scrypt/scrypt_sse2.cpp \
+	crypto/scrypt/sha256.cpp \
+	crypto/scrypt/sha256.h \
+	crypto/scrypt/hash_scrypt.h \
+	crypto/x11/aes_helper.c \
+	crypto/x11/blake.c \
+	crypto/x11/bmw.c \
+	crypto/x11/cubehash.c \
+	crypto/x11/echo.c \
+	crypto/x11/groestl.c \
+	crypto/x11/jh.c \
+	crypto/x11/keccak.c \
+	crypto/x11/luffa.c \
+	crypto/x11/shavite.c \
+	crypto/x11/simd.c \
+	crypto/x11/skein.c \
+	crypto/x11/sph_blake.h \
+	crypto/x11/sph_bmw.h \
+	crypto/x11/sph_cubehash.h \
+	crypto/x11/sph_echo.h \
+	crypto/x11/sph_groestl.h \
+	crypto/x11/sph_jh.h \
+	crypto/x11/sph_keccak.h \
+	crypto/x11/sph_luffa.h \
+	crypto/x11/sph_shavite.h \
+	crypto/x11/sph_simd.h \
+	crypto/x11/sph_skein.h \
+	crypto/x11/sph_types.h \
+	crypto/x11/hash_x11.h
 
 # common: shared between bitcoind, and bitcoin-qt and non-server tools
 libbitcoin_common_a_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
