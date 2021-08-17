@@ -29,6 +29,3 @@ static constexpr bool is_minimum()
     using U = typename std::underlying_type<T>::type;
     return x == std::numeric_limits<U>::min();
 }
-
-static_assert(is_minimum<Consensus::BuriedDeployment, Consensus::DEPLOYMENT_HEIGHTINCB>(), "heightincb is not minimum value for BuriedDeployment");
-static_assert(is_minimum<Consensus::DeploymentPos, Consensus::DEPLOYMENT_TESTDUMMY>(), "testdummy is not minimum value for DeploymentPos");

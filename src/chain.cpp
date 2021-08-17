@@ -25,7 +25,7 @@ CBlockHeader CBlockIndex::GetBlockHeader(const Consensus::Params& consensusParam
 
     if (pprev)
         block.hashPrevBlock = pprev->GetBlockHash();
-        
+
     block.hashMerkleRoot = hashMerkleRoot;
     block.nTime          = nTime;
     block.nBits          = nBits;
@@ -147,7 +147,7 @@ void CBlockIndex::BuildSkip()
         pskip = pprev->GetAncestor(GetSkipHeight(nHeight));
 }
 
-arith_uint256 GetBlockProof(const CBlockIndex& block)
+arith_uint256 GetBlockProofBase(const CBlockIndex& block)
 {
     arith_uint256 bnTarget;
     bool fNegative;
@@ -162,6 +162,126 @@ arith_uint256 GetBlockProof(const CBlockIndex& block)
     return (~bnTarget / (bnTarget + 1)) + 1;
 }
 
+arith_uint256 GetPrevWorkForAlgoWithDecay(const CBlockIndex& block, int algo)
+{
+    int nDistance = 0;
+    arith_uint256 nWork;
+    const CBlockIndex* pindex = &block;
+    while (pindex != NULL) {
+        if (nDistance > 100) {
+            return arith_uint256(0);
+        }
+        if (pindex->GetAlgo() == algo) {
+            arith_uint256 nWork = GetBlockProofBase(*pindex);
+            nWork *= (100 - nDistance);
+            nWork /= 100;
+            return nWork;
+        }
+        pindex = pindex->pprev;
+        nDistance++;
+    }
+    return arith_uint256(0);
+}
+
+arith_uint256 GetNthRoot(const int root, const arith_uint256 bn)
+{
+    assert(root > 1);
+    if (bn==0)
+        return 0;
+    assert(bn > 0);
+
+    // starting approximation
+    int nRootBits = (bn.bits() + root - 1) / root;
+    int nStartingBits = std::min(8, nRootBits);
+    arith_uint256 bnUpper = bn;
+    bnUpper >>= (nRootBits - nStartingBits)*root;
+    arith_uint256 bnCur = 0;
+    for (int i = nStartingBits - 1; i >= 0; i--) {
+        arith_uint256 bnNext = bnCur;
+        bnNext += 1 << i;
+        arith_uint256 bnPower = 1;
+        for (int j = 0; j < root; j++)
+            bnPower *= bnNext;
+        if (bnPower <= bnUpper)
+            bnCur = bnNext;
+    }
+    if (nRootBits == nStartingBits)
+        return bnCur;
+    bnCur <<= nRootBits - nStartingBits;
+
+    // iterate: cur = cur + (bn / cur^^(root-1) - cur)/root
+    arith_uint256 bnDelta;
+    const arith_uint256 bnRoot = root;
+    int nTerminate = 0;
+    bool fNegativeDelta = false;
+    // this should always converge in fewer steps, but limit just in case
+    for (int it = 0; it < 20; it++)
+    {
+        arith_uint256 bnDenominator = 1;
+        for (int i = 0; i < root - 1; i++)
+            bnDenominator *= bnCur;
+        if (bnCur > bn/bnDenominator)
+            fNegativeDelta = true;
+        if (bnCur == bn/bnDenominator)  // bnDelta=0
+            return bnCur;
+        if (fNegativeDelta) {
+            bnDelta = bnCur - bn/bnDenominator;
+            if (nTerminate == 1)
+                return bnCur - 1;
+            fNegativeDelta = false;
+            if (bnDelta <= bnRoot) {
+                bnCur -= 1;
+                nTerminate = -1;
+                continue;
+            }
+            fNegativeDelta = true;
+        } else {
+            bnDelta = bn/bnDenominator - bnCur;
+            if (nTerminate == -1)
+                return bnCur;
+            if (bnDelta <= bnRoot) {
+                bnCur += 1;
+                nTerminate = 1;
+                continue;
+            }
+        }
+        if (fNegativeDelta) {
+            bnCur -= bnDelta / bnRoot;
+        } else {
+            bnCur += bnDelta / bnRoot;
+        }
+        nTerminate = 0;
+    }
+    return bnCur;
+}
+
+arith_uint256 GetBlockProof(const CBlockIndex& block)
+{
+    arith_uint256 bnRes;
+    arith_uint256 nBlockWork = GetBlockProofBase(block);
+    int nAlgo = block.GetAlgo();
+
+    // Compute the geometric mean
+    // We use the nthRoot product rule here:
+    //     nthRoot(a*b*...) = nthRoot(a)*nthRoot(b)*...
+    // This is to ensure we never overflow a uint256.
+    nBlockWork = GetNthRoot(NUM_ALGOS, nBlockWork);
+    for (int algo = 0; algo < NUM_ALGOS_IMPL; algo++) {
+        if (algo != nAlgo) {
+            arith_uint256 nBlockWorkAlt = GetPrevWorkForAlgoWithDecay(block, algo);
+            if (nBlockWorkAlt != 0)
+                nBlockWork *= GetNthRoot(NUM_ALGOS, nBlockWorkAlt);  // Again, the nthRoot product rule.
+        }
+    }
+    // In the past we have computed the geometric mean here,
+    // but do not need to from the nthRoot product rule above.
+    bnRes = nBlockWork;
+
+    // Scale to roughly match the old work calculation
+    bnRes <<= 8;
+    return bnRes;
+}
+
 int64_t GetBlockProofEquivalentTime(const CBlockIndex& to, const CBlockIndex& from, const CBlockIndex& tip, const Consensus::Params& params)
 {
     arith_uint256 r;
@@ -172,7 +292,7 @@ int64_t GetBlockProofEquivalentTime(const CBlockIndex& to, const CBlockIndex& fr
         r = from.nChainWork - to.nChainWork;
         sign = -1;
     }
-    r = r * arith_uint256(params.nPowTargetSpacing) / GetBlockProof(tip);
+    r = r * arith_uint256(params.nMultiAlgoTargetSpacing) / GetBlockProof(tip);
     if (r.bits() > 63) {
         return sign * std::numeric_limits<int64_t>::max();
     }
@@ -196,4 +316,28 @@ const CBlockIndex* LastCommonAncestor(const CBlockIndex* pa, const CBlockIndex* 
     // Eventually all chain branches meet at the genesis block.
     assert(pa == pb);
     return pa;
+}
+
+const CBlockIndex* GetLastBlockIndexForAlgo(const CBlockIndex* pindex, int algo)
+{
+    for (;;) {
+        if (!pindex)
+            return NULL;
+        if (pindex->GetAlgo() == algo)
+            return pindex;
+        pindex = pindex->pprev;
+    }
+}
+
+std::string GetAlgoName(int algo, uint32_t time, const Consensus::Params& consensusParams)
+{
+    switch (algo) {
+    case ALGO_SHA256D:
+        return std::string("sha256d");
+    case ALGO_SCRYPT:
+        return std::string("scrypt");
+    case ALGO_X11:
+        return std::string("x11");
+    }
+    return std::string("unknown");
 }

@@ -1009,6 +1009,17 @@ bool AppInitParameterInteraction(const ArgsManager& args)
         return InitError(_("No proxy server specified. Use -proxy=<ip> or -proxy=<ip:port>."));
     }
 
+    std::string strAlgorithm = gArgs.GetArg("-algo", "sha256d");
+    transform(strAlgorithm.begin(),strAlgorithm.end(),strAlgorithm.begin(),::tolower);
+    if (strAlgorithm == "sha" || strAlgorithm == "sha256" || strAlgorithm == "sha256d")
+        miningAlgorithm = ALGO_SHA256D;
+    else if (strAlgorithm == "scrypt")
+        miningAlgorithm = ALGO_SCRYPT;
+    else if (strAlgorithm == "x11")
+        miningAlgorithm = ALGO_X11;
+    else
+        miningAlgorithm = ALGO_SHA256D;
+
     return true;
 }
 
@@ -1468,8 +1479,7 @@ bool AppInitMain(NodeContext& node, interfaces::BlockAndHeaderTipInfo* tip_info)
                 auto chainstates{chainman.GetAll()};
                 if (std::any_of(chainstates.begin(), chainstates.end(),
                                 [](const CChainState* cs) EXCLUSIVE_LOCKS_REQUIRED(cs_main) { return cs->NeedsRedownload(); })) {
-                    strLoadError = strprintf(_("Witness data for blocks after height %d requires validation. Please restart with -reindex."),
-                                             chainparams.GetConsensus().SegwitHeight);
+                    strLoadError = strprintf(_("Witness data for blocks requires validation. Please restart with -reindex."));
                     break;
                 }
             }

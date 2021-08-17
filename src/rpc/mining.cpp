@@ -120,8 +120,9 @@ static bool GenerateBlock(ChainstateManager& chainman, CBlock& block, uint64_t& 
         IncrementExtraNonce(&block, chainman.ActiveChain().Tip(), extra_nonce);
     }
 
+    int algo = block.GetAlgo();
     auto& miningHeader = CAuxPow::initAuxPow(block);
-    while (max_tries > 0 && miningHeader.nNonce < std::numeric_limits<uint32_t>::max() && !CheckProofOfWork(miningHeader.GetHash(), block.nBits, Params().GetConsensus()) && !ShutdownRequested()) {
+    while (max_tries > 0 && miningHeader.nNonce < std::numeric_limits<uint32_t>::max() && !CheckProofOfWork(miningHeader.GetPoWHash(algo), block.nBits, Params().GetConsensus()) && !ShutdownRequested()) {
         ++miningHeader.nNonce;
         --max_tries;
     }
@@ -155,7 +156,7 @@ static UniValue generateBlocks(ChainstateManager& chainman, const CTxMemPool& me
     UniValue blockHashes(UniValue::VARR);
     while (nHeight < nHeightEnd && !ShutdownRequested())
     {
-        std::unique_ptr<CBlockTemplate> pblocktemplate(BlockAssembler(chainman.ActiveChainstate(), mempool, Params()).CreateNewBlock(coinbase_script));
+        std::unique_ptr<CBlockTemplate> pblocktemplate(BlockAssembler(chainman.ActiveChainstate(), mempool, Params()).CreateNewBlock(coinbase_script, miningAlgorithm));
         if (!pblocktemplate.get())
             throw JSONRPCError(RPC_INTERNAL_ERROR, "Couldn't create new block");
         CBlock *pblock = &pblocktemplate->block;
@@ -366,7 +367,7 @@ static RPCHelpMan generateblock()
         LOCK(cs_main);
 
         CTxMemPool empty_mempool;
-        std::unique_ptr<CBlockTemplate> blocktemplate(BlockAssembler(chainman.ActiveChainstate(), empty_mempool, Params()).CreateNewBlock(coinbase_script));
+        std::unique_ptr<CBlockTemplate> blocktemplate(BlockAssembler(chainman.ActiveChainstate(), empty_mempool, Params()).CreateNewBlock(coinbase_script, miningAlgorithm));
         if (!blocktemplate) {
             throw JSONRPCError(RPC_INTERNAL_ERROR, "Couldn't create new block");
         }
@@ -433,14 +434,17 @@ static RPCHelpMan getmininginfo()
     const CChain& active_chain = chainman.ActiveChain();
 
     UniValue obj(UniValue::VOBJ);
-    obj.pushKV("blocks",           active_chain.Height());
+    obj.pushKV("blocks",             active_chain.Height());
     if (BlockAssembler::m_last_block_weight) obj.pushKV("currentblockweight", *BlockAssembler::m_last_block_weight);
     if (BlockAssembler::m_last_block_num_txs) obj.pushKV("currentblocktx", *BlockAssembler::m_last_block_num_txs);
-    obj.pushKV("difficulty",       (double)GetDifficultyForBits(active_chain.Tip()->nBits));
-    obj.pushKV("networkhashps",    getnetworkhashps().HandleRequest(request));
-    obj.pushKV("pooledtx",         (uint64_t)mempool.size());
-    obj.pushKV("chain",            Params().NetworkIDString());
-    obj.pushKV("warnings",         GetWarnings(false).original);
+    obj.pushKV("difficulty",         (double)GetDifficulty(active_chain.Tip(), miningAlgorithm, true));
+    obj.pushKV("difficulty_sha256d", (double)GetDifficulty(active_chain.Tip(), ALGO_SHA256D, true));
+    obj.pushKV("difficulty_scrypt",  (double)GetDifficulty(active_chain.Tip(), ALGO_SCRYPT, true));
+    obj.pushKV("difficulty_x11",     (double)GetDifficulty(active_chain.Tip(), ALGO_X11, true));
+    obj.pushKV("networkhashps",      getnetworkhashps().HandleRequest(request));
+    obj.pushKV("pooledtx",           (uint64_t)mempool.size());
+    obj.pushKV("chain",              Params().NetworkIDString());
+    obj.pushKV("warnings",           GetWarnings(false).original);
     return obj;
 },
     };
@@ -760,7 +764,7 @@ static RPCHelpMan getblocktemplate()
 
         // Create new block
         CScript scriptDummy = CScript() << OP_TRUE;
-        pblocktemplate = BlockAssembler(active_chainstate, mempool, Params()).CreateNewBlock(scriptDummy);
+        pblocktemplate = BlockAssembler(active_chainstate, mempool, Params()).CreateNewBlock(scriptDummy, miningAlgorithm);
         if (!pblocktemplate)
             throw JSONRPCError(RPC_OUT_OF_MEMORY, "Out of memory");
 
@@ -775,8 +779,7 @@ static RPCHelpMan getblocktemplate()
     pblock->nNonce = 0;
 
     // NOTE: If at some point we support pre-segwit miners post-segwit-activation, this needs to take segwit support into consideration
-    const bool fPreSegWit = !DeploymentActiveAfter(pindexPrev, consensusParams, Consensus::DEPLOYMENT_SEGWIT);
-
+    const bool fPreSegWit = false;
     UniValue aCaps(UniValue::VARR); aCaps.push_back("proposal");
 
     UniValue transactions(UniValue::VARR);

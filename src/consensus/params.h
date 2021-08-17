@@ -15,27 +15,18 @@ namespace Consensus {
  * A buried deployment is one where the height of the activation has been hardcoded into
  * the client implementation long after the consensus change has activated. See BIP 90.
  */
-enum BuriedDeployment : int16_t {
-    // buried deployments get negative values to avoid overlap with DeploymentPos
-    DEPLOYMENT_HEIGHTINCB = std::numeric_limits<int16_t>::min(),
-    DEPLOYMENT_P2SH,
-    DEPLOYMENT_CLTV,
-    DEPLOYMENT_DERSIG,
-    DEPLOYMENT_CSV,
-    DEPLOYMENT_SEGWIT,
-};
+enum BuriedDeployment : int16_t {};
 constexpr bool ValidDeployment(BuriedDeployment dep) {
-    return DEPLOYMENT_HEIGHTINCB <= dep && dep <= DEPLOYMENT_SEGWIT;
+    return false;
 };
 
 enum DeploymentPos : uint16_t {
     DEPLOYMENT_TESTDUMMY,
-    DEPLOYMENT_TAPROOT, // Deployment of Schnorr/Taproot (BIPs 340-342)
     // NOTE: Also add new deployments to VersionBitsDeploymentInfo in deploymentinfo.cpp
     MAX_VERSION_BITS_DEPLOYMENTS
 };
 constexpr bool ValidDeployment(DeploymentPos dep) {
-    return DEPLOYMENT_TESTDUMMY <= dep && dep <= DEPLOYMENT_TAPROOT;
+    return DEPLOYMENT_TESTDUMMY == dep;
 };
 
 /**
@@ -75,39 +66,37 @@ struct BIP9Deployment {
 struct Params {
     uint256 hashGenesisBlock;
     int nSubsidyHalvingInterval;
-    /** Block height at with BIP16 becomes active */
-    int BIP16Height;
-    /** Block height and hash at which BIP34 becomes active */
-    int BIP34Height;
-    /** Block height at which BIP65 becomes active */
-    int BIP65Height;
-    /** Block height at which BIP66 becomes active */
-    int BIP66Height;
-    /** Block height at which CSV (BIP68, BIP112 and BIP113) becomes active */
-    int CSVHeight;
-    /** Block height at which Segwit (BIP141, BIP143 and BIP147) becomes active.
-     * Note that segwit v0 script rules are enforced on all blocks except the
-     * BIP 16 exception blocks. */
-    int SegwitHeight;
-    /** Don't warn about unknown BIP 9 activations below this height.
-     * This prevents us from warning about the CSV and segwit activations. */
-    int MinBIP9WarningHeight;
+
+    /** Auxpow parameters */
+    int32_t nAuxpowChainId;
+    int nAuxpowStartHeight;
+    bool fStrictChainId;
+    int nLegacyBlocksBefore; // -1 for "always allow"
+
+    /** Difficulty adjustment parameters */
+    int64_t nAveragingInterval;
+    int64_t nPowTargetTimespan;
+    int64_t nPowTargetSpacing;
+    int64_t nMultiAlgoTargetSpacing;
+    int64_t nMaxAdjustUp;
+    int64_t nMaxAdjustDown;
+    int64_t nLocalTargetAdjustment;
+
+    /** Proof of work parameters */
+    uint256 fPowLimit;
+    bool fPowAllowMinDifficultyBlocks;
+    bool fPowNoRetargeting;
+    int64_t DifficultyAdjustmentInterval() const { return nPowTargetTimespan / nMultiAlgoTargetSpacing; }
+
     /**
      * Minimum blocks including miner confirmation of the total of 2016 blocks in a retargeting period,
-     * (nPowTargetTimespan / nPowTargetSpacing) which is also used for BIP9 deployments.
+     * (nPowTargetTimespan / nMultiAlgoTargetSpacing) which is also used for BIP9 deployments.
      * Examples: 1916 for 95%, 1512 for testchains.
      */
     uint32_t nRuleChangeActivationThreshold;
     uint32_t nMinerConfirmationWindow;
     BIP9Deployment vDeployments[MAX_VERSION_BITS_DEPLOYMENTS];
-    /** Proof of work parameters */
-    uint256 powLimit;
-    bool fPowAllowMinDifficultyBlocks;
-    int64_t nMinDifficultySince;
-    bool fPowNoRetargeting;
-    int64_t nPowTargetSpacing;
-    int64_t nPowTargetTimespan;
-    int64_t DifficultyAdjustmentInterval() const { return nPowTargetTimespan / nPowTargetSpacing; }
+
     /** The best chain should have at least this much work */
     uint256 nMinimumChainWork;
     /** By default assume that the signatures in ancestors of this block are valid */
@@ -122,40 +111,8 @@ struct Params {
 
     int DeploymentHeight(BuriedDeployment dep) const
     {
-        switch (dep) {
-        case DEPLOYMENT_P2SH:
-            return BIP16Height;
-        case DEPLOYMENT_HEIGHTINCB:
-            return BIP34Height;
-        case DEPLOYMENT_CLTV:
-            return BIP65Height;
-        case DEPLOYMENT_DERSIG:
-            return BIP66Height;
-        case DEPLOYMENT_CSV:
-            return CSVHeight;
-        case DEPLOYMENT_SEGWIT:
-            return SegwitHeight;
-        } // no default case, so the compiler can warn about missing cases
+        switch (dep) {} // no default case, so the compiler can warn about missing cases
         return std::numeric_limits<int>::max();
-    }
-
-    /** Auxpow parameters */
-    int32_t nAuxpowChainId;
-    int nAuxpowStartHeight;
-    bool fStrictChainId;
-    int nLegacyBlocksBefore; // -1 for "always allow"
-
-    /**
-     * Check whether or not minimum difficulty blocks are allowed
-     * with the given time stamp.
-     * @param nBlockTime Time of the block with minimum difficulty.
-     * @return True if it is allowed to have minimum difficulty.
-     */
-    bool AllowMinDifficultyBlocks(int64_t nBlockTime) const
-    {
-        if (!fPowAllowMinDifficultyBlocks)
-            return false;
-        return nBlockTime > nMinDifficultySince;
     }
 
     /**

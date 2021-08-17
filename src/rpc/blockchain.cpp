@@ -118,24 +118,34 @@ CBlockPolicyEstimator& EnsureAnyFeeEstimator(const std::any& context)
     return EnsureFeeEstimator(EnsureAnyNodeContext(context));
 }
 
-/* Calculate the difficulty for a given block index.
- */
-double GetDifficultyForBits(const uint32_t nBits)
+/* Calculate the difficulty for a given block index. */
+double GetDifficulty(const CBlockIndex* blockindex, int algo, bool findIndex)
 {
-    const uint32_t mantissa = nBits & 0x00ffffff;
-    if (mantissa == 0)
-        return 0.0;
+    unsigned int fPowLimit = UintToArith256(Params().GetConsensus().fPowLimit).GetCompact();
+    unsigned int nBits = fPowLimit;
+
+    if (blockindex != nullptr) {
+        if (findIndex) {
+            blockindex = GetLastBlockIndexForAlgo(blockindex, algo);
+            if (blockindex != nullptr) {
+                assert(blockindex);
+                nBits = blockindex->nBits;
+            }
+        }
+        else {
+            assert(blockindex);
+            nBits = blockindex->nBits;
+        }
+    }
 
     int nShift = (nBits >> 24) & 0xff;
-    double dDiff = (double)0x0000ffff / (double)mantissa;
+    double dDiff = (double)0x0000ffff / (double)(nBits & 0x00ffffff);
 
-    while (nShift < 29)
-    {
+    while (nShift < 29) {
         dDiff *= 256.0;
         nShift++;
     }
-    while (nShift > 29)
-    {
+    while (nShift > 29) {
         dDiff /= 256.0;
         nShift--;
     }
@@ -192,7 +202,6 @@ static UniValue blockheaderToJSON(const CPureBlockHeader& header)
     result.pushKV("time", (int64_t)header.nTime);
     result.pushKV("nonce", (uint64_t)header.nNonce);
     result.pushKV("bits", strprintf("%08x", header.nBits));
-    result.pushKV("difficulty", GetDifficultyForBits(header.nBits));
 
     if (!header.hashPrevBlock.IsNull())
         result.pushKV("previousblockhash", header.hashPrevBlock.GetHex());
@@ -212,8 +221,6 @@ UniValue blockheaderToJSON(const CBlockIndex* tip, const CBlockIndex* blockindex
     result.pushKV("confirmations", confirmations);
     result.pushKV("height", blockindex->nHeight);
     result.pushKV("mediantime", (int64_t)blockindex->GetMedianTimePast());
-    result.pushKV("chainwork", blockindex->nChainWork.GetHex());
-    result.pushKV("nTx", (uint64_t)blockindex->nTx);
 
     if (pnext)
         result.pushKV("nextblockhash", pnext->GetBlockHash().GetHex());
@@ -223,10 +230,22 @@ UniValue blockheaderToJSON(const CBlockIndex* tip, const CBlockIndex* blockindex
 UniValue blockToJSON(const CBlock& block, const CBlockIndex* tip, const CBlockIndex* blockindex, bool txDetails)
 {
     UniValue result = blockheaderToJSON(tip, blockindex);
-
     result.pushKV("strippedsize", (int)::GetSerializeSize(block, PROTOCOL_VERSION | SERIALIZE_TRANSACTION_NO_WITNESS));
     result.pushKV("size", (int)::GetSerializeSize(block, PROTOCOL_VERSION));
     result.pushKV("weight", (int)::GetBlockWeight(block));
+
+    int algo = GetAlgo(blockindex->nVersion);
+    if (block.auxpow)
+        result.pushKV("pow_hash", block.auxpow->getParentBlockPoWHash(algo).GetHex());
+    else
+        result.pushKV("pow_hash", block.GetPoWHash(algo).GetHex());
+
+    result.pushKV("pow_algo_id", algo);
+    result.pushKV("pow_algo", GetAlgoName(algo, blockindex->nTime, Params().GetConsensus()));
+    result.pushKV("difficulty", GetDifficulty(blockindex, algo, false));
+    result.pushKV("chainwork", blockindex->nChainWork.GetHex());
+    result.pushKV("nTx", (uint64_t)blockindex->nTx);
+
     UniValue txs(UniValue::VARR);
     if (txDetails) {
         CBlockUndo blockUndo;
@@ -507,7 +526,7 @@ static RPCHelpMan getdifficulty()
 {
     ChainstateManager& chainman = EnsureAnyChainman(request.context);
     LOCK(cs_main);
-    return GetDifficultyForBits(chainman.ActiveChain().Tip()->nBits);
+    return GetDifficulty(chainman.ActiveChain().Tip(), miningAlgorithm, true);
 },
     };
 }
@@ -1573,9 +1592,12 @@ RPCHelpMan getblockchaininfo()
     obj.pushKV("blocks",                height);
     obj.pushKV("headers",               pindexBestHeader ? pindexBestHeader->nHeight : -1);
     obj.pushKV("bestblockhash",         tip->GetBlockHash().GetHex());
-    obj.pushKV("difficulty",            (double)GetDifficultyForBits(tip->nBits));
-    obj.pushKV("time",                  (int64_t)tip->nTime);
+    obj.pushKV("difficulty",            (double)GetDifficulty(tip, miningAlgorithm, true));
+    obj.pushKV("difficulty_sha256d",    (double)GetDifficulty(tip, ALGO_SHA256D, true));
+    obj.pushKV("difficulty_scrypt",     (double)GetDifficulty(tip, ALGO_SCRYPT, true));
+    obj.pushKV("difficulty_x11",        (double)GetDifficulty(tip, ALGO_X11, true));
     obj.pushKV("mediantime",            (int64_t)tip->GetMedianTimePast());
+    obj.pushKV("time",                  (int64_t)tip->nTime);
     obj.pushKV("verificationprogress",  GuessVerificationProgress(Params().TxData(), tip));
     obj.pushKV("initialblockdownload",  active_chainstate.IsInitialBlockDownload());
     obj.pushKV("chainwork",             tip->nChainWork.GetHex());
@@ -1600,14 +1622,7 @@ RPCHelpMan getblockchaininfo()
 
     const Consensus::Params& consensusParams = Params().GetConsensus();
     UniValue softforks(UniValue::VOBJ);
-    SoftForkDescPushBack(tip, softforks, consensusParams, Consensus::DEPLOYMENT_HEIGHTINCB);
-    SoftForkDescPushBack(tip, softforks, consensusParams, Consensus::DEPLOYMENT_P2SH);
-    SoftForkDescPushBack(tip, softforks, consensusParams, Consensus::DEPLOYMENT_DERSIG);
-    SoftForkDescPushBack(tip, softforks, consensusParams, Consensus::DEPLOYMENT_CLTV);
-    SoftForkDescPushBack(tip, softforks, consensusParams, Consensus::DEPLOYMENT_CSV);
-    SoftForkDescPushBack(tip, softforks, consensusParams, Consensus::DEPLOYMENT_SEGWIT);
     SoftForkDescPushBack(tip, softforks, consensusParams, Consensus::DEPLOYMENT_TESTDUMMY);
-    SoftForkDescPushBack(tip, softforks, consensusParams, Consensus::DEPLOYMENT_TAPROOT);
     obj.pushKV("softforks", softforks);
 
     obj.pushKV("warnings", GetWarnings(false).original);
@@ -1925,7 +1940,7 @@ static RPCHelpMan getchaintxstats()
 {
     ChainstateManager& chainman = EnsureAnyChainman(request.context);
     const CBlockIndex* pindex;
-    int blockcount = 30 * 24 * 60 * 60 / Params().GetConsensus().nPowTargetSpacing; // By default: 1 month
+    int blockcount = 30 * 24 * 60 * 60 / Params().GetConsensus().nMultiAlgoTargetSpacing; // By default: 1 month
 
     if (request.params[1].isNull()) {
         LOCK(cs_main);

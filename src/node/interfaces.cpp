@@ -692,8 +692,7 @@ public:
     bool isTaprootActive() const override
     {
         LOCK(::cs_main);
-        const CBlockIndex* tip = Assert(m_node.chainman)->ActiveChain().Tip();
-        return DeploymentActiveAfter(tip, Params().GetConsensus(), Consensus::DEPLOYMENT_TAPROOT);
+        return true;
     }
     NodeContext& m_node;
 };

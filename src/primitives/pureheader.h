@@ -20,7 +20,7 @@ enum {
     NUM_ALGOS_IMPL
 };
 
-const int NUM_ALGOS = 5;
+const int NUM_ALGOS = 3;
 
 enum
 {
@@ -28,18 +28,14 @@ enum
     BLOCK_VERSION_DEFAULT = 0,
 
     // algo
-    BLOCK_VERSION_ALGO = (3 << 9),
+    BLOCK_VERSION_ALGO = (6 << 9),
     BLOCK_VERSION_SHA256D = (0 << 9),
-    BLOCK_VERSION_SCRYPT = (1 << 9),
-    BLOCK_VERSION_X11 = (2 << 9),
+    BLOCK_VERSION_SCRYPT = (2 << 9),
+    BLOCK_VERSION_X11 = (4 << 9),
 };
 
 /** extract algo from nVersion */
 int GetAlgo(int nVersion);
-
-std::string GetAlgoName(int Algo);
-
-int GetAlgoByName(std::string strAlgo, int fallback);
 
 /**
  * A block header without auxpow information.  This "intermediate step"

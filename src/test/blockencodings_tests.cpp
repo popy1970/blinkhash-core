@@ -50,13 +50,47 @@ static CBlock BuildBlockTestCase() {
     bool mutated;
     block.hashMerkleRoot = BlockMerkleRoot(block, &mutated);
     assert(!mutated);
-    while (!CheckProofOfWork(block.GetHash(), block.nBits, Params().GetConsensus())) ++block.nNonce;
+    while (!CheckProofOfWork(block.GetPoWHash(block.GetAlgo()), block.nBits, Params().GetConsensus())) ++block.nNonce;
     return block;
 }
 
 // Number of shared use_counts we expect for a tx we haven't touched
 // (block + mempool + our copy from the GetSharedTx call)
 constexpr long SHARED_TX_OFFSET{3};
+
+BOOST_AUTO_TEST_CASE(SimpleCheckAlgo)
+{
+    CBlock block;
+    CMutableTransaction tx;
+    tx.vin.resize(1);
+    tx.vin[0].scriptSig.resize(10);
+    tx.vout.resize(1);
+    tx.vout[0].nValue = 42;
+
+    block.vtx.resize(3);
+    block.vtx[0] = MakeTransactionRef(tx);
+    block.nVersion = 42;
+    block.hashPrevBlock = uint256S("0x00000ffde4c020b5938441a0ea3d314bf619eff0b38f32f78f7583cffa1ea485");
+    block.nBits = 0x207fffff;
+
+    tx.vin[0].prevout.hash = uint256S("0x00000ffde4c020b5938441a0ea3d314bf619eff0b38f32f78f7583cffa1ea485");
+    tx.vin[0].prevout.n = 0;
+    block.vtx[1] = MakeTransactionRef(tx);
+
+    tx.vin.resize(10);
+    for (size_t i = 0; i < tx.vin.size(); i++) {
+        tx.vin[i].prevout.hash = uint256S("0x00000ffde4c020b5938441a0ea3d314bf619eff0b38f32f78f7583cffa1ea485");
+        tx.vin[i].prevout.n = 0;
+    }
+    block.vtx[2] = MakeTransactionRef(tx);
+
+    bool mutated;
+    block.hashMerkleRoot = BlockMerkleRoot(block, &mutated);
+
+    BOOST_CHECK_EQUAL(block.GetPoWHash(ALGO_SHA256D).ToString() , "bacf6245ad841fcfd18af03fe32a3a1f182e2229f6015ac003725d5e0305aaa3");
+    BOOST_CHECK_EQUAL(block.GetPoWHash(ALGO_SCRYPT).ToString() , "2ac0f3c10dc801835c0adf049579d6fa673c258155ae43fa4c2e084dd4f951db");
+    BOOST_CHECK_EQUAL(block.GetPoWHash(ALGO_X11).ToString() , "bb819cd3f505bd17a0382e7be16fe5710d3c55347591127062b9cb098eeb9f2a");
+}
 
 BOOST_AUTO_TEST_CASE(SimpleRoundTripTest)
 {
@@ -281,7 +315,7 @@ BOOST_AUTO_TEST_CASE(EmptyBlockRoundTripTest)
     bool mutated;
     block.hashMerkleRoot = BlockMerkleRoot(block, &mutated);
     assert(!mutated);
-    while (!CheckProofOfWork(block.GetHash(), block.nBits, Params().GetConsensus())) ++block.nNonce;
+    while (!CheckProofOfWork(block.GetPoWHash(block.GetAlgo()), block.nBits, Params().GetConsensus())) ++block.nNonce;
 
     // Test simple header round-trip with only coinbase
     {

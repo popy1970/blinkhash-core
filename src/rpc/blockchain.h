@@ -28,12 +28,12 @@ struct NodeContext;
 static constexpr int NUM_GETBLOCKSTATS_PERCENTILES = 5;
 
 /**
- * Get the difficulty of the net wrt to the given bits.
+ * Get the difficulty of the net wrt to the given block index.
  *
  * @return A floating point number that is a multiple of the main net minimum
  * difficulty (4295032833 hashes).
  */
-double GetDifficultyForBits(uint32_t nBits);
+double GetDifficulty(const CBlockIndex* blockindex = nullptr, int algo = 0, bool findIndex = false);
 
 /** Callback for when block tip changed. */
 void RPCNotifyBlockChange(const CBlockIndex*);

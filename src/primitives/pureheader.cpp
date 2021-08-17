@@ -38,7 +38,7 @@ uint256 CPureBlockHeader::GetPoWHash(int algo) const
 
 void CPureBlockHeader::SetBaseVersion(int32_t nBaseVersion, int32_t nChainId)
 {
-    assert(nBaseVersion >= 1 && nBaseVersion < VERSION_AUXPOW);
+    // assert(nBaseVersion >= 1 && nBaseVersion < VERSION_AUXPOW);
     assert(!IsAuxpow());
     nVersion = nBaseVersion | (nChainId * VERSION_CHAIN_START);
 }
@@ -54,30 +54,4 @@ int GetAlgo(int nVersion)
         return ALGO_X11;
     }
     return ALGO_UNKNOWN;
-}
-
-std::string GetAlgoName(int algo)
-{
-    switch (algo) {
-    case ALGO_SHA256D:
-        return std::string("sha256d");
-    case ALGO_SCRYPT:
-        return std::string("scrypt");
-    case ALGO_X11:
-        return std::string("x11");
-    }
-    return std::string("unknown");
-}
-
-int GetAlgoByName(std::string strAlgo, int fallback)
-{
-    transform(strAlgo.begin(),strAlgo.end(),strAlgo.begin(),::tolower);
-    if (strAlgo == "sha" || strAlgo == "sha256" || strAlgo == "sha256d")
-        return ALGO_SHA256D;
-    else if (strAlgo == "scrypt")
-        return ALGO_SCRYPT;
-    else if (strAlgo == "x11")
-        return ALGO_X11;
-    else
-        return fallback;
 }

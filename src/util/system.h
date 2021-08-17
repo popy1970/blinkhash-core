@@ -45,6 +45,9 @@ extern const char * const BITCOIN_SETTINGS_FILENAME;
 void SetupEnvironment();
 bool SetupNetworking();
 
+// Blinkhash algorithm
+extern int miningAlgorithm;
+
 template<typename... Args>
 bool error(const char* fmt, const Args&... args)
 {

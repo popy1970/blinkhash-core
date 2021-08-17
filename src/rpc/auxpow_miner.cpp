@@ -81,7 +81,7 @@ AuxpowMiner::getCurrentBlock (const ChainstateManager& chainman,
         /* Create new block with nonce = 0 and extraNonce = 1.  */
         std::unique_ptr<CBlockTemplate> newBlock
             = BlockAssembler (chainman.ActiveChainstate (), mempool, Params ())
-                .CreateNewBlock (scriptPubKey);
+                .CreateNewBlock (scriptPubKey, miningAlgorithm);
         if (newBlock == nullptr)
           throw JSONRPCError (RPC_OUT_OF_MEMORY, "out of memory");
 

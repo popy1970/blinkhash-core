@@ -121,9 +121,16 @@ public:
   inline uint256
   getParentBlockHash () const
   {
-    return parentBlock.GetHash ();
+    return parentBlock.GetHash();
   }
 
+  /** returns the true parent Proof-Of-Work hash, not just the SHA256d hash as getParentBlockHash does */
+  inline uint256
+  getParentBlockPoWHash (int algo) const
+  {
+    return parentBlock.GetPoWHash(algo);
+  }
+  
   /**
    * Return parent block.  This is only used for the temporary parentblock
    * auxpow version check.
