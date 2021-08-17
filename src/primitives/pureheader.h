@@ -8,6 +8,38 @@
 
 #include <serialize.h>
 #include <uint256.h>
+#include <consensus/params.h>
+
+/** Multi-Algo definitions used to encode algorithm in nVersion */
+
+enum {
+    ALGO_UNKNOWN = -1,
+    ALGO_SHA256D = 0,
+    ALGO_SCRYPT = 1,
+    ALGO_X11 = 2,
+    NUM_ALGOS_IMPL
+};
+
+const int NUM_ALGOS = 5;
+
+enum
+{
+    // primary version
+    BLOCK_VERSION_DEFAULT = 0,
+
+    // algo
+    BLOCK_VERSION_ALGO = (3 << 9),
+    BLOCK_VERSION_SHA256D = (0 << 9),
+    BLOCK_VERSION_SCRYPT = (1 << 9),
+    BLOCK_VERSION_X11 = (2 << 9),
+};
+
+/** extract algo from nVersion */
+int GetAlgo(int nVersion);
+
+std::string GetAlgoName(int Algo);
+
+int GetAlgoByName(std::string strAlgo, int fallback);
 
 /**
  * A block header without auxpow information.  This "intermediate step"
@@ -58,6 +90,8 @@ public:
     }
 
     uint256 GetHash() const;
+
+    uint256 GetPoWHash(int algo) const;
 
     int64_t GetBlockTime() const
     {
@@ -138,6 +172,30 @@ public:
     inline bool IsLegacy() const
     {
         return nVersion == 1;
+    }
+
+    /** Extract algo from blockheader */
+    inline int GetAlgo() const
+    {
+        return ::GetAlgo(nVersion);
+    }
+
+    /** Encode the algorithm into nVersion */
+    inline void SetAlgo(int algo)
+    {
+        switch(algo) {
+        case ALGO_SHA256D:
+            nVersion |= BLOCK_VERSION_SHA256D;
+            break;
+        case ALGO_SCRYPT:
+            nVersion |= BLOCK_VERSION_SCRYPT;
+            break;
+        case ALGO_X11:
+            nVersion |= BLOCK_VERSION_X11;
+            break;
+        default:
+            break;
+        }
     }
 };
 
