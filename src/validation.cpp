@@ -3115,7 +3115,7 @@ static bool ContextualCheckBlockHeader(const CBlockHeader& block, BlockValidatio
                              "legacy block after auxpow start");
 
     // Check proof of work
-    if (block.nBits != GetNextWorkRequired(pindexPrev, &block, consensusParams))
+    if (block.nBits != GetNextWorkRequired(pindexPrev, &block, consensusParams, block.GetAlgo()))
         return state.Invalid(BlockValidationResult::BLOCK_INVALID_HEADER, "bad-diffbits", "incorrect proof of work");
 
     // Check against checkpoints

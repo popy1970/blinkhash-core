@@ -73,11 +73,10 @@ public:
 
         consensus.nAveragingInterval = 10;
         consensus.nPowTargetTimespan = 14 * 24 * 60 * 60; // two weeks
-        consensus.nPowTargetSpacing = 10 * 60;
         consensus.nMultiAlgoTargetSpacing = 120 * 3; // NUM_ALGOS * 120 seconds
-        consensus.nMaxAdjustUp = 20; // 20% adjustment up
+        consensus.nMaxAdjustUp = 10; // 10% adjustment up
         consensus.nMaxAdjustDown = 20; // 20% adjustment down
-        consensus.nLocalTargetAdjustment = 3; // target adjustment per algo
+        consensus.nLocalTargetAdjustment = 4; // target adjustment per algo
 
         consensus.fPowLimit = uint256S("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.fPowAllowMinDifficultyBlocks = false;
@@ -191,7 +190,6 @@ public:
 
         consensus.nAveragingInterval = 10;
         consensus.nPowTargetTimespan = 14 * 24 * 60 * 60; // two weeks
-        consensus.nPowTargetSpacing = 10 * 60;
         consensus.nMultiAlgoTargetSpacing = 120 * 3; // NUM_ALGOS * 120 seconds
         consensus.nMaxAdjustUp = 20; // 20% adjustment up
         consensus.nMaxAdjustDown = 20; // 20% adjustment down
@@ -327,7 +325,6 @@ public:
 
         consensus.nAveragingInterval = 10;
         consensus.nPowTargetTimespan = 14 * 24 * 60 * 60; // two weeks
-        consensus.nPowTargetSpacing = 10 * 60;
         consensus.nMultiAlgoTargetSpacing = 120 * 3; // NUM_ALGOS * 120 seconds
         consensus.nMaxAdjustUp = 20; // 20% adjustment up
         consensus.nMaxAdjustDown = 20; // 20% adjustment down
@@ -394,7 +391,6 @@ public:
 
         consensus.nAveragingInterval = 10;
         consensus.nPowTargetTimespan = 14 * 24 * 60 * 60; // two weeks
-        consensus.nPowTargetSpacing = 10 * 60;
         consensus.nMultiAlgoTargetSpacing = 120 * 3; // NUM_ALGOS * 120 seconds
         consensus.nMaxAdjustUp = 20; // 20% adjustment up
         consensus.nMaxAdjustDown = 20; // 20% adjustment down

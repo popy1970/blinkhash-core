@@ -60,9 +60,8 @@ FUZZ_TARGET_INIT(pow, initialize_pow)
         }
         {
             (void)GetBlockProof(current_block);
-            (void)CalculateNextWorkRequired(&current_block, ALGO_SHA256D, consensus_params);
             if (current_block.nHeight != std::numeric_limits<int>::max() && current_block.nHeight - (consensus_params.DifficultyAdjustmentInterval() - 1) >= 0) {
-                (void)GetNextWorkRequired(&current_block, &(*block_header), consensus_params);
+                (void)GetNextWorkRequired(&current_block, &(*block_header), consensus_params, current_block.GetAlgo());
             }
         }
         {

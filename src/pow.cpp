@@ -10,55 +10,88 @@
 #include <primitives/block.h>
 #include <uint256.h>
 
-unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHeader *pblock, const Consensus::Params& params)
+unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHeader *pblock, const Consensus::Params& params, int algo)
 {
-    assert(pindexLast != nullptr);
     unsigned int nProofOfWorkLimit = UintToArith256(params.fPowLimit).GetCompact();
 
-    // Only change once per difficulty adjustment interval
-    if ((pindexLast->nHeight+1) % params.DifficultyAdjustmentInterval() != 0)
-    {
-        if (params.fPowAllowMinDifficultyBlocks)
-        {
-            /* khal's port of this code from Bitcoin to the old blinkhashd
-               has a bug:  Comparison of block times is done by an unsigned
-               difference.  Consequently, the minimum difficulty is also
-               applied if the block's timestamp is earlier than the preceding
-               block's.  Reproduce this.  */
-            if (pblock->GetBlockTime() < pindexLast->GetBlockTime())
-                return nProofOfWorkLimit;
+    // Genesis block
+    if (pindexLast == nullptr)
+        return nProofOfWorkLimit;
 
-            // Special difficulty rule for testnet:
-            // If the new block's timestamp is more than 2* 10 minutes
-            // then allow mining of a min-difficulty block.
-            if (pblock->GetBlockTime() > pindexLast->GetBlockTime() + params.nPowTargetSpacing*2)
-                return nProofOfWorkLimit;
-            else
-            {
-                // Return the last non-special-min-difficulty-rules-block
-                const CBlockIndex* pindex = pindexLast;
-                while (pindex->pprev && pindex->nHeight % params.DifficultyAdjustmentInterval() != 0 && pindex->nBits == nProofOfWorkLimit)
-                    pindex = pindex->pprev;
-                return pindex->nBits;
-            }
+    if (params.fPowAllowMinDifficultyBlocks) {
+        /* khal's port of this code from Bitcoin to the old blinkhashd
+           has a bug:  Comparison of block times is done by an unsigned
+           difference.  Consequently, the minimum difficulty is also
+           applied if the block's timestamp is earlier than the preceding
+           block's.  Reproduce this.  */
+        if (pblock->GetBlockTime() < pindexLast->GetBlockTime())
+            return nProofOfWorkLimit;
+
+        // Special difficulty rule for testnet:
+        // If the new block's timestamp is more than 2 minutes
+        // then allow mining of a min-difficulty block.
+        if (pblock->nTime > pindexLast->nTime + params.nMultiAlgoTargetSpacing * 2)
+            return nProofOfWorkLimit;
+        else {
+            // Return the last non-special-min-difficulty-rules-block
+            const CBlockIndex* pindex = pindexLast;
+            while (pindex->pprev && pindex->nHeight % params.DifficultyAdjustmentInterval() != 0 && pindex->nBits == nProofOfWorkLimit)
+                pindex = pindex->pprev;
+            return pindex->nBits;
         }
-        return pindexLast->nBits;
     }
 
-    /* Adapt the retargeting interval after merge-mining start
-       according to the changed Blinkhash rules.  */
-    int nBlocksBack = params.DifficultyAdjustmentInterval() - 1;
-    if (pindexLast->nHeight >= params.nAuxpowStartHeight
-        && (pindexLast->nHeight + 1 > params.DifficultyAdjustmentInterval()))
-        nBlocksBack = params.DifficultyAdjustmentInterval();
+    // find first block in averaging interval
+  	// Go back by what we want to be nAveragingInterval blocks per algo
+  	const CBlockIndex* pindexFirst = pindexLast;
+  	for (int i = 0; pindexFirst && i < NUM_ALGOS * params.nAveragingInterval; i++) {
+  		  pindexFirst = pindexFirst->pprev;
+  	}
 
-    // Go back by what we want to be 14 days worth of blocks
-    int nHeightFirst = pindexLast->nHeight - nBlocksBack;
-    assert(nHeightFirst >= 0);
-    const CBlockIndex* pindexFirst = pindexLast->GetAncestor(nHeightFirst);
-    assert(pindexFirst);
+    const CBlockIndex* pindexPrevAlgo = GetLastBlockIndexForAlgo(pindexLast, algo);
+  	if (pindexPrevAlgo == nullptr || pindexFirst == nullptr) {
+  		return nProofOfWorkLimit;
+  	}
 
-    return CalculateNextWorkRequired(pindexLast, pindexFirst->GetBlockTime(), params);
+    // Limit adjustment step
+  	// Use medians to prevent time-warp attacks
+  	int64_t nActualTimespan = pindexLast->GetMedianTimePast() - pindexFirst->GetMedianTimePast();
+    int64_t nAveragingTargetTimespan = params.nAveragingInterval * params.nMultiAlgoTargetSpacing;
+  	nActualTimespan = nAveragingTargetTimespan + (nActualTimespan - nAveragingTargetTimespan)/4;
+    int64_t nMinActualTimespan = nAveragingTargetTimespan * (100 - params.nMaxAdjustUp) / 100;
+    int64_t nMaxActualTimespan = nAveragingTargetTimespan * (100 + params.nMaxAdjustDown) / 100;
+
+    if (nActualTimespan < nMinActualTimespan)
+  		nActualTimespan = nMinActualTimespan;
+  	if (nActualTimespan > nMaxActualTimespan)
+  		nActualTimespan = nMaxActualTimespan;
+
+    // Global retargeting
+  	arith_uint256 bnNew;
+  	bnNew.SetCompact(pindexPrevAlgo->nBits);
+  	bnNew *= nActualTimespan;
+  	bnNew /= nAveragingTargetTimespan;
+
+    // Algorithmic retargeting
+  	int nAdjustments = pindexPrevAlgo->nHeight + NUM_ALGOS - 1 - pindexLast->nHeight;
+  	if (nAdjustments > 0) {
+        for (int i = 0; i < nAdjustments; i++) {
+      			bnNew *= 100;
+      			bnNew /= (100 + params.nLocalTargetAdjustment);
+      	}
+    }
+    else if (nAdjustments < 0) {
+        for (int i = 0; i < -nAdjustments; i++){
+            bnNew *= (100 + params.nLocalTargetAdjustment);
+            bnNew /= 100;
+        }
+    }
+
+    if (bnNew > UintToArith256(params.fPowLimit)) {
+        bnNew = UintToArith256(params.fPowLimit);
+    }
+
+    return bnNew.GetCompact();
 }
 
 unsigned int CalculateNextWorkRequired(const CBlockIndex* pindexLast, int64_t nFirstBlockTime, const Consensus::Params& params)
@@ -68,10 +101,10 @@ unsigned int CalculateNextWorkRequired(const CBlockIndex* pindexLast, int64_t nF
 
     // Limit adjustment step
     int64_t nActualTimespan = pindexLast->GetBlockTime() - nFirstBlockTime;
-    if (nActualTimespan < params.nPowTargetTimespan/4)
-        nActualTimespan = params.nPowTargetTimespan/4;
-    if (nActualTimespan > params.nPowTargetTimespan*4)
-        nActualTimespan = params.nPowTargetTimespan*4;
+    if (nActualTimespan < params.nPowTargetTimespan / 4)
+        nActualTimespan = params.nPowTargetTimespan / 4;
+    if (nActualTimespan > params.nPowTargetTimespan * 4)
+        nActualTimespan = params.nPowTargetTimespan * 4;
 
     // Retarget
     const arith_uint256 bnPowLimit = UintToArith256(params.fPowLimit);
