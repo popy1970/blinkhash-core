@@ -1,0 +1,93 @@
+#!/sbin/openrc-run
+
+# backward compatibility for existing gentoo layout
+#
+if [ -d "/var/lib/blinkhash/.blinkhash" ]; then
+	BLINKHASHD_DEFAULT_DATADIR="/var/lib/blinkhash/.blinkhash"
+else
+	BLINKHASHD_DEFAULT_DATADIR="/var/lib/blinkhashd"
+fi
+
+BLINKHASHD_CONFIGFILE=${BLINKHASHD_CONFIGFILE:-/etc/blinkhash/blinkhash.conf}
+BLINKHASHD_PIDDIR=${BLINKHASHD_PIDDIR:-/var/run/blinkhashd}
+BLINKHASHD_PIDFILE=${BLINKHASHD_PIDFILE:-${BLINKHASHD_PIDDIR}/blinkhashd.pid}
+BLINKHASHD_DATADIR=${BLINKHASHD_DATADIR:-${BLINKHASHD_DEFAULT_DATADIR}}
+BLINKHASHD_USER=${BLINKHASHD_USER:-${BLINKHASH_USER:-blinkhash}}
+BLINKHASHD_GROUP=${BLINKHASHD_GROUP:-blinkhash}
+BLINKHASHD_BIN=${BLINKHASHD_BIN:-/usr/bin/blinkhashd}
+BLINKHASHD_NICE=${BLINKHASHD_NICE:-${NICELEVEL:-0}}
+BLINKHASHD_OPTS="${BLINKHASHD_OPTS:-${BLINKHASH_OPTS}}"
+
+name="Blinkhash Core Daemon"
+description="Blinkhash cryptocurrency P2P network daemon"
+
+command="/usr/bin/blinkhashd"
+command_args="-pid=\"${BLINKHASHD_PIDFILE}\" \
+		-conf=\"${BLINKHASHD_CONFIGFILE}\" \
+		-datadir=\"${BLINKHASHD_DATADIR}\" \
+		-daemon \
+		${BLINKHASHD_OPTS}"
+
+required_files="${BLINKHASHD_CONFIGFILE}"
+start_stop_daemon_args="-u ${BLINKHASHD_USER} \
+			-N ${BLINKHASHD_NICE} -w 2000"
+pidfile="${BLINKHASHD_PIDFILE}"
+
+# The retry schedule to use when stopping the daemon. Could be either
+# a timeout in seconds or multiple signal/timeout pairs (like
+# "SIGKILL/180 SIGTERM/300")
+retry="${BLINKHASHD_SIGTERM_TIMEOUT}"
+
+depend() {
+	need localmount net
+}
+
+# verify
+# 1) that the datadir exists and is writable (or create it)
+# 2) that a directory for the pid exists and is writable
+# 3) ownership and permissions on the config file
+start_pre() {
+	checkpath \
+	-d \
+	--mode 0750 \
+	--owner "${BLINKHASHD_USER}:${BLINKHASHD_GROUP}" \
+	"${BLINKHASHD_DATADIR}"
+
+	checkpath \
+	-d \
+	--mode 0755 \
+	--owner "${BLINKHASHD_USER}:${BLINKHASHD_GROUP}" \
+	"${BLINKHASHD_PIDDIR}"
+
+	checkpath -f \
+	-o "${BLINKHASHD_USER}:${BLINKHASHD_GROUP}" \
+	-m 0660 \
+	"${BLINKHASHD_CONFIGFILE}"
+
+	checkconfig || return 1
+}
+
+checkconfig()
+{
+	if grep -qs '^rpcuser=' "${BLINKHASHD_CONFIGFILE}" && \
+		! grep -qs '^rpcpassword=' "${BLINKHASHD_CONFIGFILE}" ; then
+		eerror ""
+		eerror "ERROR: You must set a secure rpcpassword to run blinkhashd."
+		eerror "The setting must appear in ${BLINKHASHD_CONFIGFILE}"
+		eerror ""
+		eerror "This password is security critical to securing wallets "
+		eerror "and must not be the same as the rpcuser setting."
+		eerror "You can generate a suitable random password using the following "
+		eerror "command from the shell:"
+		eerror ""
+		eerror "bash -c 'tr -dc a-zA-Z0-9 < /dev/urandom | head -c32 && echo'"
+		eerror ""
+		eerror "It is recommended that you also set alertnotify so you are "
+		eerror "notified of problems:"
+		eerror ""
+		eerror "ie: alertnotify=echo %%s | mail -s \"Blinkhash Alert\"" \
+			"admin@foo.com"
+		eerror ""
+		return 1
+	fi
+}

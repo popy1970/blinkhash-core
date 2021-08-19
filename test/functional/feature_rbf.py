@@ -17,7 +17,7 @@ from test_framework.messages import (
     CTxOut,
 )
 from test_framework.script import CScript, OP_DROP
-from test_framework.test_framework import BitcoinTestFramework
+from test_framework.test_framework import BlinkhashTestFramework
 from test_framework.util import assert_equal, assert_raises_rpc_error, satoshi_round
 from test_framework.script_util import DUMMY_P2WPKH_SCRIPT, DUMMY_2_P2WPKH_SCRIPT
 from test_framework.wallet import MiniWallet
@@ -66,7 +66,7 @@ def make_utxo(node, amount, confirmed=True, scriptPubKey=DUMMY_P2WPKH_SCRIPT):
     return COutPoint(int(txid, 16), 0)
 
 
-class ReplaceByFeeTest(BitcoinTestFramework):
+class ReplaceByFeeTest(BlinkhashTestFramework):
     def set_test_params(self):
         self.num_nodes = 1
         self.extra_args = [
@@ -88,7 +88,7 @@ class ReplaceByFeeTest(BitcoinTestFramework):
         self.wallet = MiniWallet(self.nodes[0])
         # the pre-mined test framework chain contains coinbase outputs to the
         # MiniWallet's default address ADDRESS_BCRT1_P2WSH_OP_TRUE in blocks
-        # 76-100 (see method BitcoinTestFramework._initialize_chain())
+        # 76-100 (see method BlinkhashTestFramework._initialize_chain())
         self.wallet.scan_blocks(start=76, num=2)
 
         self.log.info("Running test simple doublespend...")

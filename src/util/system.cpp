@@ -78,8 +78,8 @@
 // Application startup time (used for uptime calculation)
 const int64_t nStartupTime = GetTime();
 
-const char * const BITCOIN_CONF_FILENAME = "bitcoin.conf";
-const char * const BITCOIN_SETTINGS_FILENAME = "settings.json";
+const char * const BLINKHASH_CONF_FILENAME = "blinkhash.conf";
+const char * const BLINKHASH_SETTINGS_FILENAME = "settings.json";
 
 // Blinkhash algorithm
 int miningAlgorithm = 0;
@@ -320,7 +320,7 @@ bool ArgsManager::ParseParameters(int argc, const char* const argv[], std::strin
         if (key.substr(0, 5) == "-psn_") continue;
 #endif
 
-        if (key == "-") break; //bitcoin-tx using stdin
+        if (key == "-") break; //blinkhash-tx using stdin
         std::string val;
         size_t is_index = key.find('=');
         if (is_index != std::string::npos) {
@@ -521,7 +521,7 @@ bool ArgsManager::GetSettingsPath(fs::path* filepath, bool temp) const
         return false;
     }
     if (filepath) {
-        std::string settings = GetArg("-settings", BITCOIN_SETTINGS_FILENAME);
+        std::string settings = GetArg("-settings", BLINKHASH_SETTINGS_FILENAME);
         *filepath = fsbridge::AbsPathJoin(GetDataDirNet(), temp ? settings + ".tmp" : settings);
     }
     return true;
@@ -769,7 +769,7 @@ static std::string FormatException(const std::exception* pex, const char* pszThr
     char pszModule[MAX_PATH] = "";
     GetModuleFileNameA(nullptr, pszModule, sizeof(pszModule));
 #else
-    const char* pszModule = "bitcoin";
+    const char* pszModule = "blinkhash";
 #endif
     if (pex)
         return strprintf(
@@ -788,12 +788,12 @@ void PrintExceptionContinue(const std::exception* pex, const char* pszThread)
 
 fs::path GetDefaultDataDir()
 {
-    // Windows: C:\Users\Username\AppData\Roaming\Bitcoin
-    // macOS: ~/Library/Application Support/Bitcoin
-    // Unix-like: ~/.bitcoin
+    // Windows: C:\Users\Username\AppData\Roaming\Blinkhash
+    // macOS: ~/Library/Application Support/Blinkhash
+    // Unix-like: ~/.blinkhash
 #ifdef WIN32
     // Windows
-    return GetSpecialFolderPath(CSIDL_APPDATA) / "Bitcoin";
+    return GetSpecialFolderPath(CSIDL_APPDATA) / "Blinkhash";
 #else
     fs::path pathRet;
     char* pszHome = getenv("HOME");
@@ -803,10 +803,10 @@ fs::path GetDefaultDataDir()
         pathRet = fs::path(pszHome);
 #ifdef MAC_OSX
     // macOS
-    return pathRet / "Library/Application Support/Bitcoin";
+    return pathRet / "Library/Application Support/Blinkhash";
 #else
     // Unix-like
-    return pathRet / ".bitcoin";
+    return pathRet / ".blinkhash";
 #endif
 #endif
 }
@@ -904,7 +904,7 @@ bool ArgsManager::ReadConfigFiles(std::string& error, bool ignore_invalid_keys)
         m_config_sections.clear();
     }
 
-    const std::string confPath = GetArg("-conf", BITCOIN_CONF_FILENAME);
+    const std::string confPath = GetArg("-conf", BLINKHASH_CONF_FILENAME);
     fsbridge::ifstream stream(GetConfigFile(confPath));
 
     // ok to not have a config file
@@ -1349,9 +1349,9 @@ std::string CopyrightHolders(const std::string& strPrefix)
     const auto copyright_devs = strprintf(_(COPYRIGHT_HOLDERS).translated, COPYRIGHT_HOLDERS_SUBSTITUTION);
     std::string strCopyrightHolders = strPrefix + copyright_devs;
 
-    // Make sure Bitcoin Core copyright is not removed by accident
-    if (copyright_devs.find("Bitcoin Core") == std::string::npos) {
-        strCopyrightHolders += "\n" + strPrefix + "The Bitcoin Core developers";
+    // Make sure Blinkhash Core copyright is not removed by accident
+    if (copyright_devs.find("Blinkhash Core") == std::string::npos) {
+        strCopyrightHolders += "\n" + strPrefix + "The Blinkhash Core developers";
     }
     return strCopyrightHolders;
 }

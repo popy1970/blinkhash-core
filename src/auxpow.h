@@ -4,8 +4,8 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file license.txt or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BITCOIN_AUXPOW_H
-#define BITCOIN_AUXPOW_H
+#ifndef BLINKHASH_AUXPOW_H
+#define BLINKHASH_AUXPOW_H
 
 #include <consensus/params.h>
 #include <primitives/pureheader.h>
@@ -170,4 +170,4 @@ public:
 
 };
 
-#endif // BITCOIN_AUXPOW_H
+#endif // BLINKHASH_AUXPOW_H

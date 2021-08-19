@@ -1,7 +1,7 @@
 guix: repro: Sort find output in libtool for gcc-8
 
 Otherwise the resulting .a static libraries (e.g. libstdc++.a) will not
-be reproducible and end up making the Bitcoin binaries non-reproducible
+be reproducible and end up making the Blinkhash binaries non-reproducible
 as well.
 
 See: https://reproducible-builds.org/docs/archives/#gnu-libtool
@@ -142,7 +142,7 @@ index ce66b44906a..0f81c401407 100644
 -      my_oldobjs="$my_oldobjs "`find $my_xdir -name \*.$objext -print -o -name \*.lo -print | $NL2SP`
 +      my_oldobjs="$my_oldobjs "`find $my_xdir -name \*.$objext -print -o -name \*.lo -print | sort | $NL2SP`
      done
- 
+
      func_extract_archives_result="$my_oldobjs"
 diff --git a/libhsail-rt/configure b/libhsail-rt/configure
 index a4fcc10c1f9..8e671229fcd 100755
@@ -396,5 +396,5 @@ index 9503ec85d70..79f9ba89af5 100644
 -      my_oldobjs="$my_oldobjs "`find $my_xdir -name \*.$objext -print -o -name \*.lo -print | $NL2SP`
 +      my_oldobjs="$my_oldobjs "`find $my_xdir -name \*.$objext -print -o -name \*.lo -print | sort | $NL2SP`
      done
- 
+
      func_extract_archives_result="$my_oldobjs"

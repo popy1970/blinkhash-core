@@ -7,13 +7,13 @@
 from test_framework.messages import (
     tx_from_hex,
 )
-from test_framework.test_framework import BitcoinTestFramework
+from test_framework.test_framework import BlinkhashTestFramework
 from test_framework.util import (
     assert_equal,
 )
 
 
-class AddressesDeprecationTest(BitcoinTestFramework):
+class AddressesDeprecationTest(BlinkhashTestFramework):
     def set_test_params(self):
         self.num_nodes = 2
         self.extra_args = [[], ["-deprecatedrpc=addresses"]]

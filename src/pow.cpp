@@ -19,7 +19,7 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
         return nProofOfWorkLimit;
 
     if (params.fPowAllowMinDifficultyBlocks) {
-        /* khal's port of this code from Bitcoin to the old blinkhashd
+        /* khal's port of this code from Blinkhash to the old blinkhashd
            has a bug:  Comparison of block times is done by an unsigned
            difference.  Consequently, the minimum difficulty is also
            applied if the block's timestamp is earlier than the preceding

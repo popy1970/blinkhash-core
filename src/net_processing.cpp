@@ -2144,7 +2144,7 @@ void PeerManagerImpl::ProcessHeadersMessage(CNode& pfrom, const Peer& peer,
         if (pfrom.nVersion >= SIZE_HEADERS_LIMIT_VERSION
               && nSize >= THRESHOLD_HEADERS_SIZE)
             maxSize = true;
-        // FIXME: This change (with hasNewHeaders) is rolled back in Bitcoin,
+        // FIXME: This change (with hasNewHeaders) is rolled back in Blinkhash,
         // but I think it should stay here for merge-mined coins.  Try to get
         // it fixed again upstream and then update the fix.
         if (maxSize && received_new_header) {

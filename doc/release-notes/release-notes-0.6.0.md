@@ -30,7 +30,7 @@ because database writes are queued to speed up download
 time.
 
 
-NEW FEATURES SINCE BITCOIN VERSION 0.5
+NEW FEATURES SINCE VERSION 0.5
 
 Initial network synchronization should be much faster
 (one or two hours on a typical machine instead of ten or more
@@ -57,7 +57,7 @@ short keys are not compatible with earlier
 versions of Bitcoin-Qt/bitcoind.
 
 New command-line argument -blocknotify=<command>
-that will spawn a shell process to run <command> 
+that will spawn a shell process to run <command>
 when a new block is accepted.
 
 New command-line argument -splash=0 to disable

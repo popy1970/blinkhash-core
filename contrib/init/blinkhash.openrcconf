@@ -1,0 +1,33 @@
+# /etc/conf.d/blinkhashd: config file for /etc/init.d/blinkhashd
+
+# Config file location
+#BLINKHASHD_CONFIGFILE="/etc/blinkhash/blinkhash.conf"
+
+# What directory to write pidfile to?  (created and owned by $BLINKHASHD_USER)
+#BLINKHASHD_PIDDIR="/var/run/blinkhashd"
+
+# What filename to give the pidfile
+#BLINKHASHD_PIDFILE="${BLINKHASHD_PIDDIR}/blinkhashd.pid"
+
+# Where to write blinkhashd data (be mindful that the blockchain is large)
+#BLINKHASHD_DATADIR="/var/lib/blinkhashd"
+
+# User and group to own blinkhashd process
+#BLINKHASHD_USER="blinkhash"
+#BLINKHASHD_GROUP="blinkhash"
+
+# Path to blinkhashd executable
+#BLINKHASHD_BIN="/usr/bin/blinkhashd"
+
+# Nice value to run blinkhashd under
+#BLINKHASHD_NICE=0
+
+# Additional options (avoid -conf and -datadir, use flags above)
+#BLINKHASHD_OPTS=""
+
+# The timeout in seconds OpenRC will wait for blinkhashd to terminate
+# after a SIGTERM has been raised.
+# Note that this will be mapped as argument to start-stop-daemon's
+# '--retry' option, which means you can specify a retry schedule
+# here. For more information see man 8 start-stop-daemon.
+BLINKHASHD_SIGTERM_TIMEOUT=600

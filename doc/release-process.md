@@ -5,8 +5,8 @@ Release Process
 
 ### Before every release candidate
 
-* Update translations see [translation_process.md](https://github.com/bitcoin/bitcoin/blob/master/doc/translation_process.md#synchronising-translations).
-* Update manpages, see [gen-manpages.sh](https://github.com/bitcoin/bitcoin/blob/master/contrib/devtools/README.md#gen-manpagessh).
+* Update translations see [translation_process.md](https://github.com/blinkhash/blinkhash-core/blob/master/doc/translation_process.md#synchronising-translations).
+* Update manpages, see [gen-manpages.sh](https://github.com/blinkhash/blinkhash-core/blob/master/contrib/devtools/README.md#gen-manpagessh).
 * Update release candidate version in `configure.ac` (`CLIENT_VERSION_RC`).
 
 ### Before every major and minor release
@@ -19,8 +19,8 @@ Release Process
 
 * On both the master branch and the new release branch:
   - update `CLIENT_VERSION_MAJOR` in [`configure.ac`](../configure.ac)
-  - update `CLIENT_VERSION_MAJOR`, `PACKAGE_VERSION`, and `PACKAGE_STRING` in [`build_msvc/bitcoin_config.h`](/build_msvc/bitcoin_config.h)
-* On the new release branch in [`configure.ac`](../configure.ac) and [`build_msvc/bitcoin_config.h`](/build_msvc/bitcoin_config.h) (see [this commit](https://github.com/bitcoin/bitcoin/commit/742f7dd)):
+  - update `CLIENT_VERSION_MAJOR`, `PACKAGE_VERSION`, and `PACKAGE_STRING` in [`build_msvc/blinkhash_config.h`](/build_msvc/blinkhash_config.h)
+* On the new release branch in [`configure.ac`](../configure.ac) and [`build_msvc/blinkhash_config.h`](/build_msvc/blinkhash_config.h) (see [this commit](https://github.com/bitcoin/bitcoin/commit/742f7dd)):
   - set `CLIENT_VERSION_MINOR` to `0`
   - set `CLIENT_VERSION_BUILD` to `0`
   - set `CLIENT_VERSION_IS_RELEASE` to `true`
@@ -76,7 +76,7 @@ Check out the source code in the following directory hierarchy.
     cd /path/to/your/toplevel/build
     git clone https://github.com/bitcoin-core/guix.sigs.git
     git clone https://github.com/bitcoin-core/bitcoin-detached-sigs.git
-    git clone https://github.com/bitcoin/bitcoin.git
+    git clone https://github.com/blinkhash/blinkhash-core.git
 
 ### Write the release notes
 
@@ -92,10 +92,10 @@ Generate list of authors:
 
 ### Setup and perform Guix builds
 
-Checkout the Bitcoin Core version you'd like to build:
+Checkout the Blinkhash Core version you'd like to build:
 
 ```sh
-pushd ./bitcoin
+pushd ./blinkhash-core
 SIGNER='(your builder key, ie bluematt, sipa, etc)'
 VERSION='(new version without v-prefix, e.g. 0.20.0)'
 git fetch "v${VERSION}"
@@ -124,7 +124,7 @@ Follow the relevant Guix README.md sections:
 
 ### Verify other builders' signatures to your own. (Optional)
 
-Add other builders keys to your gpg keyring, and/or refresh keys: See `../bitcoin/contrib/builder-keys/README.md`.
+Add other builders keys to your gpg keyring, and/or refresh keys: See `../blinkhash-core/contrib/builder-keys/README.md`.
 
 Follow the relevant Guix README.md sections:
 - [Verifying build output attestations](/contrib/guix/README.md#verifying-build-output-attestations)
@@ -248,13 +248,13 @@ cat "$VERSION"/*/all.SHA256SUMS.asc > SHA256SUMS.asc
 
       - Install [golang](https://golang.org/doc/install)
 
-      - Install the new Bitcoin Core release
+      - Install the new Blinkhash Core release
 
-      - Run bitcoind on regtest
+      - Run blinkhashd on regtest
 
       - Clone the [bitcoincore.org repository](https://github.com/bitcoin-core/bitcoincore.org)
 
-      - Run: `go run generate.go` while being in `contrib/doc-gen` folder, and with bitcoin-cli in PATH
+      - Run: `go run generate.go` while being in `contrib/doc-gen` folder, and with blinkhash-cli in PATH
 
       - Add the generated files to git
 
@@ -281,21 +281,14 @@ cat "$VERSION"/*/all.SHA256SUMS.asc > SHA256SUMS.asc
         - Put "0.xx" in the track field
         - Click "create snap package"
         - Click "Request builds" for every new release on this branch (after updating the snapcraft.yml in the branch to reflect the latest guix results)
-        - Promote release on https://snapcraft.io/bitcoin-core/releases if it passes sanity checks
 
   - This repo
 
       - Archive the release notes for the new version to `doc/release-notes/` (branch `master` and branch of the release)
 
-      - Create a [new GitHub release](https://github.com/bitcoin/bitcoin/releases/new) with a link to the archived release notes
+      - Create a [new GitHub release](https://github.com/blinkhash/blinkhash-core/releases/new) with a link to the archived release notes
 
 - Announce the release:
-
-  - bitcoin-dev and bitcoin-core-dev mailing list
-
-  - Bitcoin Core announcements list https://bitcoincore.org/en/list/announcements/join/
-
-  - Bitcoin Core Twitter https://twitter.com/bitcoincoreorg
 
   - Celebrate
 

@@ -172,10 +172,10 @@ Updated RPCs
   it is recommended to instead use the `connection_type` field (it will return
   `manual` when addnode is true). (#19725)
 
-- The `getpeerinfo` RPC no longer returns the `whitelisted` field by default. 
-  This field will be fully removed in the next major release. It can be accessed 
-  with the configuration option `-deprecatedrpc=getpeerinfo_whitelisted`. However, 
-  it is recommended to instead use the `permissions` field to understand if specific 
+- The `getpeerinfo` RPC no longer returns the `whitelisted` field by default.
+  This field will be fully removed in the next major release. It can be accessed
+  with the configuration option `-deprecatedrpc=getpeerinfo_whitelisted`. However,
+  it is recommended to instead use the `permissions` field to understand if specific
   privileges have been granted to the peer. (#19770)
 
 - The `walletcreatefundedpsbt` RPC call will now fail with
@@ -843,7 +843,7 @@ Tests
 - #19094 Only allow ASCII identifiers (laanwj)
 - #18820 Propagate well-known vars into depends (dongcarl)
 - #19173 turn on --enable-c++17 by --enable-fuzz (vasild)
-- #18297 Use pkg-config in BITCOIN_QT_CONFIGURE for all hosts including Windows (hebasto)
+- #18297 Use pkg-config in BLINKHASH_QT_CONFIGURE for all hosts including Windows (hebasto)
 - #19301 don't warn when doxygen isn't found (fanquake)
 - #19240 macOS toolchain simplification and bump (dongcarl)
 - #19356 Fix search for brew-installed BDB 4 on OS X (gwillen)

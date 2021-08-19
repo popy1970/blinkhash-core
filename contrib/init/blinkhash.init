@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+#
+#  blinkhashd The blinkhash core server.
+#
+#
+# chkconfig: 345 80 20
+# description: blinkhashd
+# processname: blinkhashd
+#
+
+# Source function library.
+. /etc/init.d/functions
+
+# you can override defaults in /etc/sysconfig/blinkhashd, see below
+if [ -f /etc/sysconfig/blinkhashd ]; then
+        . /etc/sysconfig/blinkhashd
+fi
+
+RETVAL=0
+
+prog=blinkhashd
+# you can override the lockfile via BLINKHASHD_LOCKFILE in /etc/sysconfig/blinkhashd
+lockfile=${BLINKHASHD_LOCKFILE-/var/lock/subsys/blinkhashd}
+
+# blinkhashd defaults to /usr/bin/blinkhashd, override with BLINKHASHD_BIN
+blinkhashd=${BLINKHASHD_BIN-/usr/bin/blinkhashd}
+
+# blinkhashd opts default to -disablewallet, override with BLINKHASHD_OPTS
+blinkhashd_opts=${BLINKHASHD_OPTS--disablewallet}
+
+start() {
+    echo -n $"Starting $prog: "
+    daemon $DAEMONOPTS $blinkhashd $blinkhashd_opts
+    RETVAL=$?
+    echo
+    [ $RETVAL -eq 0 ] && touch $lockfile
+    return $RETVAL
+}
+
+stop() {
+    echo -n $"Stopping $prog: "
+    killproc $prog -t600
+    RETVAL=$?
+    echo
+    [ $RETVAL -eq 0 ] && rm -f $lockfile
+    return $RETVAL
+}
+
+case "$1" in
+    start)
+        start
+        ;;
+    stop)
+        stop
+        ;;
+    status)
+        status $prog
+        ;;
+    restart)
+        stop
+        start
+        ;;
+    *)
+        echo "Usage: service $prog {start|stop|status|restart}"
+        exit 1
+        ;;
+esac
