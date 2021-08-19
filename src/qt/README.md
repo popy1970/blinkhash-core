@@ -61,7 +61,7 @@ To run:
 
 * UI elements like BlinkhashAmountField, which inherit from QWidget.
 * `blinkhashstrings.cpp`: automatically generated
-* `blinkhashunits.(h/cpp)`: BTC / mBTC / etc. handling
+* `blinkhashunits.(h/cpp)`: BLKH / mBLKH / etc. handling
 * `callback.h`
 * `guiconstants.h`: UI colors, app name, etc.
 * `guiutil.h`: several helper functions

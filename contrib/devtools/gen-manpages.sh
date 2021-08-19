@@ -36,7 +36,7 @@ then
 fi
 
 # The autodetected version git tag can screw up manpage output a little bit
-read -r -a BTCVER <<< "$($BLINKHASHCLI --version | head -n1 | awk -F'[ -]' '{ print $6, $7 }')"
+read -r -a BLKHVER <<< "$($BLINKHASHCLI --version | head -n1 | awk -F'[ -]' '{ print $6, $7 }')"
 
 # Create a footer file with copyright content.
 # This gets autodetected fine for blinkhashd if --version-string is not set,
@@ -46,8 +46,8 @@ $BLINKHASHD --version | sed -n '1!p' >> footer.h2m
 
 for cmd in $BLINKHASHD $BLINKHASHCLI $BLINKHASHTX $WALLET_TOOL $BLINKHASHUTIL $BLINKHASHQT; do
   cmdname="${cmd##*/}"
-  help2man -N --version-string=${BTCVER[0]} --include=footer.h2m -o ${MANDIR}/${cmdname}.1 ${cmd}
-  sed -i "s/\\\-${BTCVER[1]}//g" ${MANDIR}/${cmdname}.1
+  help2man -N --version-string=${BLKHVER[0]} --include=footer.h2m -o ${MANDIR}/${cmdname}.1 ${cmd}
+  sed -i "s/\\\-${BLKHVER[1]}//g" ${MANDIR}/${cmdname}.1
 done
 
 rm -f footer.h2m

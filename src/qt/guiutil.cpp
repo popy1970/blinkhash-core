@@ -167,7 +167,7 @@ bool parseBlinkhashURI(const QUrl &uri, SendCoinsRecipient *out)
         {
             if(!i->second.isEmpty())
             {
-                if(!BlinkhashUnits::parse(BlinkhashUnits::BTC, i->second, &rv.amount))
+                if(!BlinkhashUnits::parse(BlinkhashUnits::BLKH, i->second, &rv.amount))
                 {
                     return false;
                 }
@@ -200,7 +200,7 @@ QString formatBlinkhashURI(const SendCoinsRecipient &info)
 
     if (info.amount)
     {
-        ret += QString("?amount=%1").arg(BlinkhashUnits::format(BlinkhashUnits::BTC, info.amount, false, BlinkhashUnits::SeparatorStyle::NEVER));
+        ret += QString("?amount=%1").arg(BlinkhashUnits::format(BlinkhashUnits::BLKH, info.amount, false, BlinkhashUnits::SeparatorStyle::NEVER));
         paramCount++;
     }
 
