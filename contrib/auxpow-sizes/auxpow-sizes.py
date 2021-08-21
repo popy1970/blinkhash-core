@@ -22,7 +22,7 @@ import urllib
 
 username = urllib.quote_plus ("blinkhash")
 password = urllib.quote_plus ("password")
-port = 8332
+port = 9854
 url = "http://%s:%s@localhost:%d/" % (username, password, port)
 
 class AuxpowStats:

@@ -82,8 +82,8 @@ The high water mark value must be an integer greater than or equal to 0.
 
 For instance:
 
-    $ blinkhashd -zmqpubhashtx=tcp://127.0.0.1:28332 \
-               -zmqpubhashtx=tcp://192.168.1.2:28332 \
+    $ blinkhashd -zmqpubhashtx=tcp://127.0.0.1:29854 \
+               -zmqpubhashtx=tcp://192.168.1.2:29854 \
                -zmqpubrawtx=ipc:///tmp/blinkhashd.tx.raw \
                -zmqpubhashtxhwm=10000
 
