@@ -208,7 +208,7 @@ TestingSetup::TestingSetup(const std::string& chainName, const std::vector<const
 
 TestChain100Setup::TestChain100Setup()
 {
-    SetMockTime(1598887952);
+    SetMockTime(1629460000);
     constexpr std::array<unsigned char, 32> vchKey = {
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}};
     coinbaseKey.Set(vchKey.begin(), vchKey.end(), true);
@@ -220,7 +220,7 @@ TestChain100Setup::TestChain100Setup()
         LOCK(::cs_main);
         assert(
             m_node.chainman->ActiveChain().Tip()->GetBlockHash().ToString() ==
-            "3c8325911799669e52b1dad760fc255fbe43b07609f40ae81ff7083872a268df");
+            "626a2b3c1b91fee4e02ce699bd659f87e4fe97fd1caff65eac5dfe7bfe503de7");
     }
 }
 
