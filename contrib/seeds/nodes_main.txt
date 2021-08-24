@@ -1,1 +1,3 @@
 # List of fixed seed nodes for mainnet
+44.195.255.162:9855
+44.196.88.172:9855
