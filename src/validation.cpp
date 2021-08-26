@@ -1222,14 +1222,12 @@ bool CheckProofOfWork(const CBlockHeader& block, const Consensus::Params& params
 
 CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams)
 {
-    int halvings = nHeight / consensusParams.nSubsidyHalvingInterval;
-    // Force block reward to zero when right shift is undefined.
-    if (halvings >= 64)
-        return 0;
-
-    CAmount nSubsidy = 50 * COIN;
-    // Subsidy is cut in half every 210,000 blocks which will occur approximately every 4 years.
-    nSubsidy >>= halvings;
+    CAmount nSubsidy = 5000 * COIN;
+    // Subsidy will always be 5,000 coins, due to the usage of the coin as a utility token.
+    // It Would be counter-intuitive to increase/decrease reward when stability is necessary,
+    // especially with AuxPow. There's no incentive to mine BLKH as an auxiliary chain if we
+    // ever get to the point where the subsidy has decreased to the point where no reward
+    // is issued to the miner.
     return nSubsidy;
 }
 
