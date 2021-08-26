@@ -107,7 +107,7 @@ public:
         assert(consensus.hashGenesisBlock == uint256S("0x00000000bffcdb704339d72c0db32fd9649e59f57400bccbfd22e3776c1e946c"));
         assert(genesis.hashMerkleRoot == uint256S("0xb966eddde22d3a8f9457904e4ad96dd83f7cfae9453635d168569ee6980914c5"));
 
-        base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,24);
+        base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,25);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,40);
         base58Prefixes[SECRET_KEY] =     std::vector<unsigned char>(1,156);
         base58Prefixes[EXT_PUBLIC_KEY] = {0x04, 0x88, 0xB2, 0x1E};
