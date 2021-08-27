@@ -5,12 +5,25 @@
 #ifndef BLINKHASH_WALLET_CONTEXT_H
 #define BLINKHASH_WALLET_CONTEXT_H
 
+#include <sync.h>
+
+#include <functional>
+#include <list>
+#include <memory>
+#include <vector>
+
 class ArgsManager;
+class CWallet;
 namespace interfaces {
 class Chain;
+class Wallet;
 } // namespace interfaces
 
+<<<<<<< HEAD
 struct NodeContext;
+=======
+using LoadWalletFn = std::function<void(std::unique_ptr<interfaces::Wallet> wallet)>;
+>>>>>>> 33707a2a8828c68e3c0586bdadea52c84873d386
 
 //! WalletContext struct containing references to state shared between CWallet
 //! instances, like the reference to the chain interface, and the list of opened
@@ -24,7 +37,10 @@ struct NodeContext;
 //! behavior.
 struct WalletContext {
     interfaces::Chain* chain{nullptr};
-    ArgsManager* args{nullptr};
+    ArgsManager* args{nullptr}; // Currently a raw pointer because the memory is not managed by this struct
+    Mutex wallets_mutex;
+    std::vector<std::shared_ptr<CWallet>> wallets GUARDED_BY(wallets_mutex);
+    std::list<LoadWalletFn> wallet_load_fns GUARDED_BY(wallets_mutex);
 
     /* getauxwork is a wallet RPC but actually needs the NodeContext (unlike
        any of the upstream Blinkhash wallet RPCs).  */
