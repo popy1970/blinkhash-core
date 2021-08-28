@@ -147,13 +147,8 @@ class ProxyTest(BlinkhashTestFramework):
             self.network_test(node, addr, network=NET_IPV6)
 
         if test_onion:
-<<<<<<< HEAD
             addr = "pg6mmjiyjmcrsslvykfwnntlaru7p5svn6y2ymmju6nubxndf4pscryd.onion:9855"
-            self.log.debug("Test: outgoing onion connection through node for address {}".format(addr))
-=======
-            addr = "pg6mmjiyjmcrsslvykfwnntlaru7p5svn6y2ymmju6nubxndf4pscryd.onion:8333"
             self.log.debug(f"Test: outgoing onion connection through node for address {addr}")
->>>>>>> 33707a2a8828c68e3c0586bdadea52c84873d386
             node.addnode(addr, "onetry")
             cmd = proxies[2].queue.get()
             assert isinstance(cmd, Socks5Command)
@@ -166,13 +161,8 @@ class ProxyTest(BlinkhashTestFramework):
             rv.append(cmd)
             self.network_test(node, addr, network=NET_ONION)
 
-<<<<<<< HEAD
         addr = "node.noumenon:9855"
-        self.log.debug("Test: outgoing DNS name connection through node for address {}".format(addr))
-=======
-        addr = "node.noumenon:8333"
         self.log.debug(f"Test: outgoing DNS name connection through node for address {addr}")
->>>>>>> 33707a2a8828c68e3c0586bdadea52c84873d386
         node.addnode(addr, "onetry")
         cmd = proxies[3].queue.get()
         assert isinstance(cmd, Socks5Command)

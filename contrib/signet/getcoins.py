@@ -11,39 +11,23 @@ import requests
 DEFAULT_GLOBAL_FAUCET = 'https://signetfaucet.com/claim'
 GLOBAL_FIRST_BLOCK_HASH = '00000086d6b2636cb2a392d45edc4ec544a10024d30141c9adf4bfd9de533b53'
 
-<<<<<<< HEAD
 parser = argparse.ArgumentParser(description='Script to get coins from a faucet.', epilog='You may need to start with double-dash (--) when providing blinkhash-cli arguments.')
 parser.add_argument('-c', '--cmd', dest='cmd', default='blinkhash-cli', help='blinkhash-cli command to use')
-parser.add_argument('-f', '--faucet', dest='faucet', default='https://signetfaucet.com/claim', help='URL of the faucet')
-parser.add_argument('-a', '--addr', dest='addr', default='', help='Blinkhash address to which the faucet should send')
-=======
-parser = argparse.ArgumentParser(description='Script to get coins from a faucet.', epilog='You may need to start with double-dash (--) when providing bitcoin-cli arguments.')
-parser.add_argument('-c', '--cmd', dest='cmd', default='bitcoin-cli', help='bitcoin-cli command to use')
 parser.add_argument('-f', '--faucet', dest='faucet', default=DEFAULT_GLOBAL_FAUCET, help='URL of the faucet')
-parser.add_argument('-a', '--addr', dest='addr', default='', help='Bitcoin address to which the faucet should send')
->>>>>>> 33707a2a8828c68e3c0586bdadea52c84873d386
+parser.add_argument('-a', '--addr', dest='addr', default='', help='Blinkhash address to which the faucet should send')
 parser.add_argument('-p', '--password', dest='password', default='', help='Faucet password, if any')
 parser.add_argument('blinkhash_cli_args', nargs='*', help='Arguments to pass on to blinkhash-cli (default: -signet)')
 
 args = parser.parse_args()
 
-<<<<<<< HEAD
-if args.addr == '':
-    if args.blinkhash_cli_args == []:
-        args.blinkhash_cli_args = ['-signet']
-    # get address for receiving coins
-    try:
-        args.addr = subprocess.check_output([args.cmd] + args.blinkhash_cli_args + ['getnewaddress', 'faucet', 'bech32']).strip()
-=======
-if args.bitcoin_cli_args == []:
-    args.bitcoin_cli_args = ['-signet']
+if args.blinkhash_cli_args == []:
+    args.blinkhash_cli_args = ['-signet']
 
 
-def bitcoin_cli(rpc_command_and_params):
-    argv = [args.cmd] + args.bitcoin_cli_args + rpc_command_and_params
+def blinkhash_cli(rpc_command_and_params):
+    argv = [args.cmd] + args.blinkhash_cli_args + rpc_command_and_params
     try:
         return subprocess.check_output(argv).strip().decode()
->>>>>>> 33707a2a8828c68e3c0586bdadea52c84873d386
     except FileNotFoundError:
         print('The binary', args.cmd, 'could not be found.')
         exit(1)
@@ -55,14 +39,14 @@ def bitcoin_cli(rpc_command_and_params):
 
 if args.faucet.lower() == DEFAULT_GLOBAL_FAUCET:
     # Get the hash of the block at height 1 of the currently active signet chain
-    curr_signet_hash = bitcoin_cli(['getblockhash', '1'])
+    curr_signet_hash = blinkhash_cli(['getblockhash', '1'])
     if curr_signet_hash != GLOBAL_FIRST_BLOCK_HASH:
         print('The global faucet cannot be used with a custom Signet network. Please use the global signet or setup your custom faucet to use this functionality.\n')
         exit(1)
 
 if args.addr == '':
     # get address for receiving coins
-    args.addr = bitcoin_cli(['getnewaddress', 'faucet', 'bech32'])
+    args.addr = blinkhash_cli(['getnewaddress', 'faucet', 'bech32'])
 
 data = {'address': args.addr, 'password': args.password}
 try:

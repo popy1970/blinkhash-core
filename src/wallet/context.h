@@ -19,11 +19,8 @@ class Chain;
 class Wallet;
 } // namespace interfaces
 
-<<<<<<< HEAD
 struct NodeContext;
-=======
 using LoadWalletFn = std::function<void(std::unique_ptr<interfaces::Wallet> wallet)>;
->>>>>>> 33707a2a8828c68e3c0586bdadea52c84873d386
 
 //! WalletContext struct containing references to state shared between CWallet
 //! instances, like the reference to the chain interface, and the list of opened

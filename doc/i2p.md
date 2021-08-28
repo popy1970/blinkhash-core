@@ -10,13 +10,6 @@ started with I2P terminology.
 ## Run Blinkhash Core with an I2P router (proxy)
 
 A running I2P router (proxy) with [SAM](https://geti2p.net/en/docs/api/samv3)
-<<<<<<< HEAD
-enabled is required (there is an [official one](https://geti2p.net) and
-[a few alternatives](https://en.wikipedia.org/wiki/I2P#Routers)). Notice the IP
-address and port the SAM proxy is listening to; usually, it is
-`127.0.0.1:7656`. Once it is up and running with SAM enabled, use the following
-Blinkhash Core options:
-=======
 enabled is required. Options include:
 
 - [i2prouter (I2P Router)](https://geti2p.net), the official implementation in
@@ -31,9 +24,8 @@ enabled is required. Options include:
 Note the IP address and port the SAM proxy is listening to; usually, it is
 `127.0.0.1:7656`.
 
-Once an I2P router with SAM enabled is up and running, use the following Bitcoin
+Once an I2P router with SAM enabled is up and running, use the following Blinkhash
 Core configuration options:
->>>>>>> 33707a2a8828c68e3c0586bdadea52c84873d386
 
 ```
 -i2psam=<ip:port>
@@ -61,24 +53,12 @@ named `i2p_private_key` in the Blinkhash Core data directory.
 
 ## Additional configuration options related to I2P
 
-<<<<<<< HEAD
-You may set the `debug=i2p` config logging option to have additional
-information in the debug log about your I2P configuration and connections. Run
-`blinkhash-cli help logging` for more information.
-
-It is possible to restrict outgoing connections in the usual way with
-`onlynet=i2p`. I2P support was added to Blinkhash Core in version 22.0 (mid-2021)
-and there may be fewer I2P peers than Tor or IP ones. Therefore, using
-`onlynet=i2p` alone (without other `onlynet=`) may make a node more susceptible
-to [Sybil attacks](https://en.bitcoin.it/wiki/Weaknesses#Sybil_attack). Use
-`blinkhash-cli -addrinfo` to see the number of I2P addresses known to your node.
-=======
 ```
 -debug=i2p
 ```
 
 Set the `debug=i2p` config logging option to see additional information in the
-debug log about your I2P configuration and connections. Run `bitcoin-cli help
+debug log about your I2P configuration and connections. Run `blinkhash-cli help
 logging` for more information.
 
 ```
@@ -93,12 +73,11 @@ Warning: if you use -onlynet with values other than onion, and the -onion or
 -proxy option is set, then outgoing onion connections will still be made; use
 -noonion or -onion=0 to disable outbound onion connections in this case.
 
-I2P support was added to Bitcoin Core in version 22.0 and there may be fewer I2P
+I2P support was added to Blinkhash Core in version 22.0 and there may be fewer I2P
 peers than Tor or IP ones. Therefore, using I2P alone without other networks may
 make a node more susceptible to [Sybil
 attacks](https://en.bitcoin.it/wiki/Weaknesses#Sybil_attack). You can use
-`bitcoin-cli -addrinfo` to see the number of I2P addresses known to your node.
->>>>>>> 33707a2a8828c68e3c0586bdadea52c84873d386
+`blinkhash-cli -addrinfo` to see the number of I2P addresses known to your node.
 
 Another consideration with `onlynet=i2p` is that the initial blocks download
 phase when syncing up a new node can be very slow. This phase can be sped up by

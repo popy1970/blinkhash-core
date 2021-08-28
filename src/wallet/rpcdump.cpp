@@ -784,11 +784,7 @@ RPCHelpMan dumpwallet()
     std::sort(vKeyBirth.begin(), vKeyBirth.end());
 
     // produce output
-<<<<<<< HEAD
-    file << strprintf("# Wallet dump created by Blinkhash %s\n", CLIENT_BUILD);
-=======
     file << strprintf("# Wallet dump created by %s %s\n", PACKAGE_NAME, FormatFullVersion());
->>>>>>> 33707a2a8828c68e3c0586bdadea52c84873d386
     file << strprintf("# * Created on %s\n", FormatISO8601DateTime(GetTime()));
     file << strprintf("# * Best block at time of backup was %i (%s),\n", wallet.GetLastBlockHeight(), wallet.GetLastBlockHash().ToString());
     file << strprintf("#   mined on %s\n", FormatISO8601DateTime(block_time));

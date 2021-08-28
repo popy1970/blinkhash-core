@@ -23,13 +23,8 @@ class ConfArgsTest(BlinkhashTestFramework):
         self.stop_node(0)
 
         inc_conf_file_path = os.path.join(self.nodes[0].datadir, 'include.conf')
-<<<<<<< HEAD
         with open(os.path.join(self.nodes[0].datadir, 'blinkhash.conf'), 'a', encoding='utf-8') as conf:
             conf.write('includeconf={}\n'.format(inc_conf_file_path))
-=======
-        with open(os.path.join(self.nodes[0].datadir, 'bitcoin.conf'), 'a', encoding='utf-8') as conf:
-            conf.write(f'includeconf={inc_conf_file_path}\n')
->>>>>>> 33707a2a8828c68e3c0586bdadea52c84873d386
 
         self.nodes[0].assert_start_raises_init_error(
             expected_msg='Error: Error parsing command line arguments: Invalid parameter -dash_cli=1',
@@ -50,13 +45,9 @@ class ConfArgsTest(BlinkhashTestFramework):
                 conf.write("wallet=foo\n")
             self.nodes[0].assert_start_raises_init_error(expected_msg=f'Error: Config setting for -wallet only applied on {self.chain} network when in [{self.chain}] section.')
 
-<<<<<<< HEAD
         main_conf_file_path = os.path.join(self.options.tmpdir, 'node0', 'blinkhash_main.conf')
-        util.write_config(main_conf_file_path, n=0, chain='', extra_config='includeconf={}\n'.format(inc_conf_file_path))
-=======
-        main_conf_file_path = os.path.join(self.options.tmpdir, 'node0', 'bitcoin_main.conf')
         util.write_config(main_conf_file_path, n=0, chain='', extra_config=f'includeconf={inc_conf_file_path}\n')
->>>>>>> 33707a2a8828c68e3c0586bdadea52c84873d386
+
         with open(inc_conf_file_path, 'w', encoding='utf-8') as conf:
             conf.write('acceptnonstdtxn=1\n')
         self.nodes[0].assert_start_raises_init_error(extra_args=[f"-conf={main_conf_file_path}"], expected_msg='Error: acceptnonstdtxn is not currently supported for main chain')
@@ -78,13 +69,9 @@ class ConfArgsTest(BlinkhashTestFramework):
         self.nodes[0].assert_start_raises_init_error(expected_msg='Error: Error reading configuration file: parse error on line 4, using # in rpcpassword can be ambiguous and should be avoided')
 
         inc_conf_file2_path = os.path.join(self.nodes[0].datadir, 'include2.conf')
-<<<<<<< HEAD
+
         with open(os.path.join(self.nodes[0].datadir, 'blinkhash.conf'), 'a', encoding='utf-8') as conf:
-            conf.write('includeconf={}\n'.format(inc_conf_file2_path))
-=======
-        with open(os.path.join(self.nodes[0].datadir, 'bitcoin.conf'), 'a', encoding='utf-8') as conf:
             conf.write(f'includeconf={inc_conf_file2_path}\n')
->>>>>>> 33707a2a8828c68e3c0586bdadea52c84873d386
 
         with open(inc_conf_file_path, 'w', encoding='utf-8') as conf:
             conf.write('testnot.datadir=1\n')

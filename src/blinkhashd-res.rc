@@ -14,7 +14,6 @@ BEGIN
     BEGIN
         BLOCK "040904E4" // U.S. English - multilingual (hex)
         BEGIN
-<<<<<<< HEAD:src/blinkhashd-res.rc
             VALUE "CompanyName",        "Blinkhash"
             VALUE "FileDescription",    "blinkhashd (Blinkhash node with a JSON-RPC server)"
             VALUE "FileVersion",        VER_FILEVERSION_STR
@@ -24,17 +23,6 @@ BEGIN
             VALUE "OriginalFilename",   "blinkhashd.exe"
             VALUE "ProductName",        "blinkhashd"
             VALUE "ProductVersion",     VER_PRODUCTVERSION_STR
-=======
-            VALUE "CompanyName",        "Bitcoin"
-            VALUE "FileDescription",    "bitcoind (Bitcoin node with a JSON-RPC server)"
-            VALUE "FileVersion",        PACKAGE_VERSION
-            VALUE "InternalName",       "bitcoind"
-            VALUE "LegalCopyright",     COPYRIGHT_STR
-            VALUE "LegalTrademarks1",   "Distributed under the MIT software license, see the accompanying file COPYING or http://www.opensource.org/licenses/mit-license.php."
-            VALUE "OriginalFilename",   "bitcoind.exe"
-            VALUE "ProductName",        "bitcoind"
-            VALUE "ProductVersion",     PACKAGE_VERSION
->>>>>>> 33707a2a8828c68e3c0586bdadea52c84873d386:src/bitcoind-res.rc
         END
     END
 

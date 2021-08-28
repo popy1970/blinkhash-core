@@ -66,11 +66,7 @@ class AsmapTest(BlinkhashTestFramework):
     def test_default_asmap(self):
         shutil.copyfile(self.asmap_raw, self.default_asmap)
         for arg in ['-asmap', '-asmap=']:
-<<<<<<< HEAD
-            self.log.info('Test blinkhashd {} (using default map file)'.format(arg))
-=======
-            self.log.info(f'Test bitcoind {arg} (using default map file)')
->>>>>>> 33707a2a8828c68e3c0586bdadea52c84873d386
+            self.log.info(f'Test blinkhashd {arg} (using default map file)')
             self.stop_node(0)
             with self.node.assert_debug_log(expected_messages(self.default_asmap)):
                 self.start_node(0, [arg])

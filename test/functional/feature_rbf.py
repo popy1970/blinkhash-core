@@ -23,54 +23,9 @@ from test_framework.script_util import DUMMY_P2WPKH_SCRIPT, DUMMY_2_P2WPKH_SCRIP
 from test_framework.wallet import MiniWallet
 
 MAX_REPLACEMENT_LIMIT = 100
-<<<<<<< HEAD
-
-
-def make_utxo(node, amount, confirmed=True, scriptPubKey=DUMMY_P2WPKH_SCRIPT):
-    """Create a txout with a given amount and scriptPubKey
-
-    Mines coins as needed.
-
-    confirmed - txouts created will be confirmed in the blockchain;
-                unconfirmed otherwise.
-    """
-    fee = 1 * COIN
-    while node.getbalance() < satoshi_round((amount + fee) / COIN):
-        node.generate(COINBASE_MATURITY)
-
-    new_addr = node.getnewaddress()
-    txid = node.sendtoaddress(new_addr, satoshi_round((amount + fee) / COIN))
-    tx1 = node.getrawtransaction(txid, 1)
-    txid = int(txid, 16)
-    i, _ = next(filter(lambda vout: new_addr == vout[1]['scriptPubKey']['address'], enumerate(tx1['vout'])))
-
-    tx2 = CTransaction()
-    tx2.vin = [CTxIn(COutPoint(txid, i))]
-    tx2.vout = [CTxOut(amount, scriptPubKey)]
-    tx2.rehash()
-
-    signed_tx = node.signrawtransactionwithwallet(tx2.serialize().hex())
-
-    txid = node.sendrawtransaction(signed_tx['hex'], 0)
-
-    # If requested, ensure txouts are confirmed.
-    if confirmed:
-        mempool_size = len(node.getrawmempool())
-        while mempool_size > 0:
-            node.generate(1)
-            new_size = len(node.getrawmempool())
-            # Error out if we have something stuck in the mempool, as this
-            # would likely be a bug.
-            assert new_size < mempool_size
-            mempool_size = new_size
-
-    return COutPoint(int(txid, 16), 0)
-
 
 class ReplaceByFeeTest(BlinkhashTestFramework):
-=======
-class ReplaceByFeeTest(BitcoinTestFramework):
->>>>>>> 33707a2a8828c68e3c0586bdadea52c84873d386
+
     def set_test_params(self):
         self.num_nodes = 1
         self.extra_args = [

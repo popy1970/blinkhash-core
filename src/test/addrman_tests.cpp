@@ -175,31 +175,17 @@ BOOST_AUTO_TEST_CASE(addrman_simple)
     BOOST_CHECK_EQUAL(addr_null.ToString(), "[::]:0");
 
     // Test: Does Addrman::Add work as expected.
-<<<<<<< HEAD
     CService addr1 = ResolveService("250.1.1.1", 9855);
-    BOOST_CHECK(addrman.Add(CAddress(addr1, NODE_NONE), source));
-    BOOST_CHECK_EQUAL(addrman.size(), 1U);
-    CAddrInfo addr_ret1 = addrman.Select();
+    BOOST_CHECK(addrman->Add({CAddress(addr1, NODE_NONE)}, source));
+    BOOST_CHECK_EQUAL(addrman->size(), 1U);
+    CAddrInfo addr_ret1 = addrman->Select();
     BOOST_CHECK_EQUAL(addr_ret1.ToString(), "250.1.1.1:9855");
 
     // Test: Does IP address deduplication work correctly.
     //  Expected dup IP should not be added.
     CService addr1_dup = ResolveService("250.1.1.1", 9855);
-    BOOST_CHECK(!addrman.Add(CAddress(addr1_dup, NODE_NONE), source));
-    BOOST_CHECK_EQUAL(addrman.size(), 1U);
-=======
-    CService addr1 = ResolveService("250.1.1.1", 8333);
-    BOOST_CHECK(addrman->Add({CAddress(addr1, NODE_NONE)}, source));
-    BOOST_CHECK_EQUAL(addrman->size(), 1U);
-    CAddrInfo addr_ret1 = addrman->Select();
-    BOOST_CHECK_EQUAL(addr_ret1.ToString(), "250.1.1.1:8333");
-
-    // Test: Does IP address deduplication work correctly.
-    //  Expected dup IP should not be added.
-    CService addr1_dup = ResolveService("250.1.1.1", 8333);
     BOOST_CHECK(!addrman->Add({CAddress(addr1_dup, NODE_NONE)}, source));
     BOOST_CHECK_EQUAL(addrman->size(), 1U);
->>>>>>> 33707a2a8828c68e3c0586bdadea52c84873d386
 
 
     // Test: New table has one addr and we add a diff addr we should
@@ -208,36 +194,17 @@ BOOST_AUTO_TEST_CASE(addrman_simple)
     // hash collisions may occur. But we can always be sure of at least one
     // success.
 
-<<<<<<< HEAD
     CService addr2 = ResolveService("250.1.1.2", 9855);
-    BOOST_CHECK(addrman.Add(CAddress(addr2, NODE_NONE), source));
-    BOOST_CHECK(addrman.size() >= 1);
-
-    // Test: AddrMan::Clear() should empty the new table.
-    addrman.Clear();
-    BOOST_CHECK_EQUAL(addrman.size(), 0U);
-    CAddrInfo addr_null2 = addrman.Select();
-    BOOST_CHECK_EQUAL(addr_null2.ToString(), "[::]:0");
-=======
-    CService addr2 = ResolveService("250.1.1.2", 8333);
     BOOST_CHECK(addrman->Add({CAddress(addr2, NODE_NONE)}, source));
     BOOST_CHECK(addrman->size() >= 1);
->>>>>>> 33707a2a8828c68e3c0586bdadea52c84873d386
 
     // Test: reset addrman and test AddrMan::Add multiple addresses works as expected
     addrman = std::make_unique<CAddrManTest>();
     std::vector<CAddress> vAddr;
-<<<<<<< HEAD
     vAddr.push_back(CAddress(ResolveService("250.1.1.3", 9855), NODE_NONE));
     vAddr.push_back(CAddress(ResolveService("250.1.1.4", 9855), NODE_NONE));
-    BOOST_CHECK(addrman.Add(vAddr, source));
-    BOOST_CHECK(addrman.size() >= 1);
-=======
-    vAddr.push_back(CAddress(ResolveService("250.1.1.3", 8333), NODE_NONE));
-    vAddr.push_back(CAddress(ResolveService("250.1.1.4", 8333), NODE_NONE));
     BOOST_CHECK(addrman->Add(vAddr, source));
     BOOST_CHECK(addrman->size() >= 1);
->>>>>>> 33707a2a8828c68e3c0586bdadea52c84873d386
 }
 
 BOOST_AUTO_TEST_CASE(addrman_ports)
@@ -249,21 +216,12 @@ BOOST_AUTO_TEST_CASE(addrman_ports)
     BOOST_CHECK_EQUAL(addrman.size(), 0U);
 
     // Test 7; Addr with same IP but diff port does not replace existing addr.
-<<<<<<< HEAD
     CService addr1 = ResolveService("250.1.1.1", 9855);
-    BOOST_CHECK(addrman.Add(CAddress(addr1, NODE_NONE), source));
-    BOOST_CHECK_EQUAL(addrman.size(), 1U);
-
-    CService addr1_port = ResolveService("250.1.1.1", 9853);
-    BOOST_CHECK(!addrman.Add(CAddress(addr1_port, NODE_NONE), source));
-=======
-    CService addr1 = ResolveService("250.1.1.1", 8333);
     BOOST_CHECK(addrman.Add({CAddress(addr1, NODE_NONE)}, source));
     BOOST_CHECK_EQUAL(addrman.size(), 1U);
 
-    CService addr1_port = ResolveService("250.1.1.1", 8334);
+    CService addr1_port = ResolveService("250.1.1.1", 9854);
     BOOST_CHECK(!addrman.Add({CAddress(addr1_port, NODE_NONE)}, source));
->>>>>>> 33707a2a8828c68e3c0586bdadea52c84873d386
     BOOST_CHECK_EQUAL(addrman.size(), 1U);
     CAddrInfo addr_ret2 = addrman.Select();
     BOOST_CHECK_EQUAL(addr_ret2.ToString(), "250.1.1.1:9855");
@@ -285,13 +243,8 @@ BOOST_AUTO_TEST_CASE(addrman_select)
     CNetAddr source = ResolveIP("252.2.2.2");
 
     // Test: Select from new with 1 addr in new.
-<<<<<<< HEAD
     CService addr1 = ResolveService("250.1.1.1", 9855);
-    BOOST_CHECK(addrman.Add(CAddress(addr1, NODE_NONE), source));
-=======
-    CService addr1 = ResolveService("250.1.1.1", 8333);
     BOOST_CHECK(addrman.Add({CAddress(addr1, NODE_NONE)}, source));
->>>>>>> 33707a2a8828c68e3c0586bdadea52c84873d386
     BOOST_CHECK_EQUAL(addrman.size(), 1U);
 
     bool newOnly = true;
@@ -315,34 +268,20 @@ BOOST_AUTO_TEST_CASE(addrman_select)
     CService addr3 = ResolveService("250.3.2.2", 9999);
     CService addr4 = ResolveService("250.3.3.3", 9999);
 
-<<<<<<< HEAD
-    BOOST_CHECK(addrman.Add(CAddress(addr2, NODE_NONE), ResolveService("250.3.1.1", 9855)));
-    BOOST_CHECK(addrman.Add(CAddress(addr3, NODE_NONE), ResolveService("250.3.1.1", 9855)));
-    BOOST_CHECK(addrman.Add(CAddress(addr4, NODE_NONE), ResolveService("250.4.1.1", 9855)));
-=======
-    BOOST_CHECK(addrman.Add({CAddress(addr2, NODE_NONE)}, ResolveService("250.3.1.1", 8333)));
-    BOOST_CHECK(addrman.Add({CAddress(addr3, NODE_NONE)}, ResolveService("250.3.1.1", 8333)));
-    BOOST_CHECK(addrman.Add({CAddress(addr4, NODE_NONE)}, ResolveService("250.4.1.1", 8333)));
->>>>>>> 33707a2a8828c68e3c0586bdadea52c84873d386
+    BOOST_CHECK(addrman.Add({CAddress(addr2, NODE_NONE)}, ResolveService("250.3.1.1", 9855)));
+    BOOST_CHECK(addrman.Add({CAddress(addr3, NODE_NONE)}, ResolveService("250.3.1.1", 9855)));
+    BOOST_CHECK(addrman.Add({CAddress(addr4, NODE_NONE)}, ResolveService("250.4.1.1", 9855)));
 
     // Add three addresses to tried table.
     CService addr5 = ResolveService("250.4.4.4", 9855);
     CService addr6 = ResolveService("250.4.5.5", 7777);
     CService addr7 = ResolveService("250.4.6.6", 9855);
 
-<<<<<<< HEAD
-    BOOST_CHECK(addrman.Add(CAddress(addr5, NODE_NONE), ResolveService("250.3.1.1", 9855)));
+    BOOST_CHECK(addrman.Add({CAddress(addr5, NODE_NONE)}, ResolveService("250.3.1.1", 9855)));
     addrman.Good(CAddress(addr5, NODE_NONE));
-    BOOST_CHECK(addrman.Add(CAddress(addr6, NODE_NONE), ResolveService("250.3.1.1", 9855)));
+    BOOST_CHECK(addrman.Add({CAddress(addr6, NODE_NONE)}, ResolveService("250.3.1.1", 9855)));
     addrman.Good(CAddress(addr6, NODE_NONE));
-    BOOST_CHECK(addrman.Add(CAddress(addr7, NODE_NONE), ResolveService("250.1.1.3", 9855)));
-=======
-    BOOST_CHECK(addrman.Add({CAddress(addr5, NODE_NONE)}, ResolveService("250.3.1.1", 8333)));
-    addrman.Good(CAddress(addr5, NODE_NONE));
-    BOOST_CHECK(addrman.Add({CAddress(addr6, NODE_NONE)}, ResolveService("250.3.1.1", 8333)));
-    addrman.Good(CAddress(addr6, NODE_NONE));
-    BOOST_CHECK(addrman.Add({CAddress(addr7, NODE_NONE)}, ResolveService("250.1.1.3", 8333)));
->>>>>>> 33707a2a8828c68e3c0586bdadea52c84873d386
+    BOOST_CHECK(addrman.Add({CAddress(addr7, NODE_NONE)}, ResolveService("250.1.1.3", 9855)));
     addrman.Good(CAddress(addr7, NODE_NONE));
 
     // Test: 6 addrs + 1 addr from last test = 7.
@@ -1069,7 +1008,7 @@ BOOST_AUTO_TEST_CASE(caddrdb_read)
     CAddrManUncorrupted addrmanUncorrupted;
 
     CService addr1, addr2, addr3;
-    BOOST_CHECK(Lookup("250.7.1.1", addr1, 8333, false));
+    BOOST_CHECK(Lookup("250.7.1.1", addr1, 9855, false));
     BOOST_CHECK(Lookup("250.7.2.2", addr2, 9999, false));
     BOOST_CHECK(Lookup("250.7.3.3", addr3, 9999, false));
     BOOST_CHECK(Lookup("250.7.3.3"s, addr3, 9999, false));
@@ -1077,7 +1016,7 @@ BOOST_AUTO_TEST_CASE(caddrdb_read)
 
     // Add three addresses to new table.
     CService source;
-    BOOST_CHECK(Lookup("252.5.1.1", source, 8333, false));
+    BOOST_CHECK(Lookup("252.5.1.1", source, 9855, false));
     std::vector<CAddress> addresses{CAddress(addr1, NODE_NONE), CAddress(addr2, NODE_NONE), CAddress(addr3, NODE_NONE)};
     BOOST_CHECK(addrmanUncorrupted.Add(addresses, source));
     BOOST_CHECK(addrmanUncorrupted.size() == 3);

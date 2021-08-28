@@ -10,11 +10,8 @@ from test_framework.util import (
     assert_raises_rpc_error,
 )
 
-<<<<<<< HEAD:test/functional/rpc_signmessage.py
-class SignMessagesTest(BlinkhashTestFramework):
-=======
-class SignMessagesWithPrivTest(BitcoinTestFramework):
->>>>>>> 33707a2a8828c68e3c0586bdadea52c84873d386:test/functional/rpc_signmessagewithprivkey.py
+class SignMessagesWithPrivTest(BlinkhashTestFramework):
+
     def set_test_params(self):
         self.setup_clean_chain = True
         self.num_nodes = 1

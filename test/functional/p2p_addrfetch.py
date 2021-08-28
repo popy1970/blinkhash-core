@@ -20,12 +20,8 @@ ADDR.ip = "192.0.0.8"
 ADDR.port = 29855
 
 
-<<<<<<< HEAD
 class P2PAddrFetch(BlinkhashTestFramework):
 
-=======
-class P2PAddrFetch(BitcoinTestFramework):
->>>>>>> 33707a2a8828c68e3c0586bdadea52c84873d386
     def set_test_params(self):
         self.setup_clean_chain = True
         self.num_nodes = 1

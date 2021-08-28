@@ -329,15 +329,9 @@ void BlinkhashGUI::createActions()
     verifyMessageAction = new QAction(tr("&Verify message…"), this);
     verifyMessageAction->setStatusTip(tr("Verify messages to ensure they were signed with specified Blinkhash addresses"));
     m_load_psbt_action = new QAction(tr("&Load PSBT from file…"), this);
-<<<<<<< HEAD:src/qt/blinkhashgui.cpp
     m_load_psbt_action->setStatusTip(tr("Load Partially Signed Blinkhash Transaction"));
     m_load_psbt_clipboard_action = new QAction(tr("Load PSBT from clipboard…"), this);
     m_load_psbt_clipboard_action->setStatusTip(tr("Load Partially Signed Blinkhash Transaction from clipboard"));
-=======
-    m_load_psbt_action->setStatusTip(tr("Load Partially Signed Bitcoin Transaction"));
-    m_load_psbt_clipboard_action = new QAction(tr("Load PSBT from &clipboard…"), this);
-    m_load_psbt_clipboard_action->setStatusTip(tr("Load Partially Signed Bitcoin Transaction from clipboard"));
->>>>>>> 33707a2a8828c68e3c0586bdadea52c84873d386:src/qt/bitcoingui.cpp
 
     openRPCConsoleAction = new QAction(tr("Node window"), this);
     openRPCConsoleAction->setStatusTip(tr("Open node debugging and diagnostic console"));
@@ -601,15 +595,9 @@ void BlinkhashGUI::setClientModel(ClientModel *_clientModel, interfaces::BlockAn
         connect(_clientModel, &ClientModel::numConnectionsChanged, this, &BlinkhashGUI::setNumConnections);
         connect(_clientModel, &ClientModel::networkActiveChanged, this, &BlinkhashGUI::setNetworkActive);
 
-<<<<<<< HEAD:src/qt/blinkhashgui.cpp
-        modalOverlay->setKnownBestHeight(tip_info->header_height, QDateTime::fromTime_t(tip_info->header_time));
-        setNumBlocks(tip_info->block_height, QDateTime::fromTime_t(tip_info->block_time), tip_info->verification_progress, false, SynchronizationState::INIT_DOWNLOAD);
-        connect(_clientModel, &ClientModel::numBlocksChanged, this, &BlinkhashGUI::setNumBlocks);
-=======
         modalOverlay->setKnownBestHeight(tip_info->header_height, QDateTime::fromSecsSinceEpoch(tip_info->header_time));
         setNumBlocks(tip_info->block_height, QDateTime::fromSecsSinceEpoch(tip_info->block_time), tip_info->verification_progress, false, SynchronizationState::INIT_DOWNLOAD);
-        connect(_clientModel, &ClientModel::numBlocksChanged, this, &BitcoinGUI::setNumBlocks);
->>>>>>> 33707a2a8828c68e3c0586bdadea52c84873d386:src/qt/bitcoingui.cpp
+        connect(_clientModel, &ClientModel::numBlocksChanged, this, &BlinkhashGUI::setNumBlocks);
 
         // Receive and report messages from client model
         connect(_clientModel, &ClientModel::message, [this](const QString &title, const QString &message, unsigned int style){
@@ -705,16 +693,9 @@ void BlinkhashGUI::addWallet(WalletModel* walletModel)
     connect(wallet_view, &WalletView::message, [this](const QString& title, const QString& message, unsigned int style) {
         this->message(title, message, style);
     });
-<<<<<<< HEAD:src/qt/blinkhashgui.cpp
     connect(wallet_view, &WalletView::encryptionStatusChanged, this, &BlinkhashGUI::updateWalletStatus);
     connect(wallet_view, &WalletView::incomingTransaction, this, &BlinkhashGUI::incomingTransaction);
-    connect(wallet_view, &WalletView::hdEnabledStatusChanged, this, &BlinkhashGUI::updateWalletStatus);
     connect(this, &BlinkhashGUI::setPrivacy, wallet_view, &WalletView::setPrivacy);
-=======
-    connect(wallet_view, &WalletView::encryptionStatusChanged, this, &BitcoinGUI::updateWalletStatus);
-    connect(wallet_view, &WalletView::incomingTransaction, this, &BitcoinGUI::incomingTransaction);
-    connect(this, &BitcoinGUI::setPrivacy, wallet_view, &WalletView::setPrivacy);
->>>>>>> 33707a2a8828c68e3c0586bdadea52c84873d386:src/qt/bitcoingui.cpp
     wallet_view->setPrivacy(isPrivacyModeActivated());
     const QString display_name = walletModel->getDisplayName();
     m_wallet_selector->addItem(display_name, QVariant::fromValue(walletModel));

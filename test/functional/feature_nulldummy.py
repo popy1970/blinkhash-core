@@ -23,16 +23,8 @@ from test_framework.blocktools import (
 )
 from test_framework.messages import CTransaction
 from test_framework.script import CScript
-<<<<<<< HEAD
 from test_framework.test_framework import BlinkhashTestFramework
 from test_framework.util import assert_equal, assert_raises_rpc_error
-=======
-from test_framework.test_framework import BitcoinTestFramework
-from test_framework.util import (
-    assert_equal,
-    assert_raises_rpc_error,
-)
->>>>>>> 33707a2a8828c68e3c0586bdadea52c84873d386
 
 NULLDUMMY_ERROR = "non-mandatory-script-verify-flag (Dummy CHECKMULTISIG argument must be zero)"
 

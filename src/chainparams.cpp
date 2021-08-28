@@ -64,7 +64,6 @@ public:
         strNetworkID = CBaseChainParams::MAIN;
         consensus.signet_blocks = false;
         consensus.signet_challenge.clear();
-        consensus.nSubsidyHalvingInterval = 400000;
 
         consensus.fStrictChainId = true;
         consensus.nAuxpowChainId = 0x07e5;
@@ -145,7 +144,6 @@ public:
         strNetworkID = CBaseChainParams::TESTNET;
         consensus.signet_blocks = false;
         consensus.signet_challenge.clear();
-        consensus.nSubsidyHalvingInterval = 400000;
 
         consensus.fStrictChainId = true;
         consensus.nAuxpowChainId = 0x07e5;
@@ -230,8 +228,6 @@ public:
         strNetworkID =  CBaseChainParams::REGTEST;
         consensus.signet_blocks = false;
         consensus.signet_challenge.clear();
-<<<<<<< HEAD
-        consensus.nSubsidyHalvingInterval = 200;
 
         consensus.fStrictChainId = true;
         consensus.nAuxpowChainId = 0x07e5;
@@ -239,18 +235,6 @@ public:
         consensus.nLegacyBlocksBefore = 1;
 
         consensus.nAveragingInterval = 10;
-=======
-        consensus.nSubsidyHalvingInterval = 150;
-        consensus.BIP16Exception = uint256();
-        consensus.BIP34Height = 2; // BIP34 activated on regtest (Block at height 1 not enforced for testing purposes)
-        consensus.BIP34Hash = uint256();
-        consensus.BIP65Height = 111; // BIP65 activated on regtest (Block at height 110 and earlier not enforced for testing purposes)
-        consensus.BIP66Height = 102; // BIP66 activated on regtest (Block at height 101 and earlier not enforced for testing purposes)
-        consensus.CSVHeight = 432; // CSV activated on regtest (Used in rpc activation tests)
-        consensus.SegwitHeight = 0; // SEGWIT is always activated on regtest unless overridden
-        consensus.MinBIP9WarningHeight = 0;
-        consensus.powLimit = uint256S("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
->>>>>>> 33707a2a8828c68e3c0586bdadea52c84873d386
         consensus.nPowTargetTimespan = 14 * 24 * 60 * 60; // two weeks
         consensus.nMultiAlgoTargetSpacing = 120 * 3; // NUM_ALGOS * 120 seconds
         consensus.nMaxAdjustUp = 10; // 10% adjustment up
@@ -412,7 +396,6 @@ public:
         strNetworkID = CBaseChainParams::SIGNET;
         consensus.signet_blocks = true;
         consensus.signet_challenge.assign(bin.begin(), bin.end());
-        consensus.nSubsidyHalvingInterval = 400000;
 
         consensus.fStrictChainId = true;
         consensus.nAuxpowChainId = 0x07e5;
