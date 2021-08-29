@@ -16,6 +16,9 @@ const struct VBDeploymentInfo VersionBitsDeploymentInfo[Consensus::MAX_VERSION_B
 std::string DeploymentName(Consensus::BuriedDeployment dep)
 {
     assert(ValidDeployment(dep));
-    switch (dep) {} // no default case, so the compiler can warn about missing cases
+    switch (dep) {
+    case Consensus::DEPLOYMENT_HEIGHTINCB:
+        return "bip34";
+    } // no default case, so the compiler can warn about missing cases
     return "";
 }

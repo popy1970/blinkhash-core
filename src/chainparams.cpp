@@ -64,6 +64,7 @@ public:
         strNetworkID = CBaseChainParams::MAIN;
         consensus.signet_blocks = false;
         consensus.signet_challenge.clear();
+        consensus.BIP34Height = 1;
 
         consensus.fStrictChainId = true;
         consensus.nAuxpowChainId = 0x07e5;
@@ -144,6 +145,7 @@ public:
         strNetworkID = CBaseChainParams::TESTNET;
         consensus.signet_blocks = false;
         consensus.signet_challenge.clear();
+        consensus.BIP34Height = 1;
 
         consensus.fStrictChainId = true;
         consensus.nAuxpowChainId = 0x07e5;
@@ -228,6 +230,7 @@ public:
         strNetworkID =  CBaseChainParams::REGTEST;
         consensus.signet_blocks = false;
         consensus.signet_challenge.clear();
+        consensus.BIP34Height = 1;
 
         consensus.fStrictChainId = true;
         consensus.nAuxpowChainId = 0x07e5;
@@ -396,6 +399,7 @@ public:
         strNetworkID = CBaseChainParams::SIGNET;
         consensus.signet_blocks = true;
         consensus.signet_challenge.assign(bin.begin(), bin.end());
+        consensus.BIP34Height = 1;
 
         consensus.fStrictChainId = true;
         consensus.nAuxpowChainId = 0x07e5;

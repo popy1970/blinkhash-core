@@ -12,13 +12,13 @@
 #define CLIENT_VERSION_BUILD 0
 
 /* Version is release */
-#define CLIENT_VERSION_IS_RELEASE false
+#define CLIENT_VERSION_IS_RELEASE true
 
 /* Major version */
-#define CLIENT_VERSION_MAJOR 22
+#define CLIENT_VERSION_MAJOR 1
 
 /* Minor version */
-#define CLIENT_VERSION_MINOR 99
+#define CLIENT_VERSION_MINOR 0
 
 /* Copyright holder(s) before %s replacement */
 #define COPYRIGHT_HOLDERS "The %s developers"
@@ -254,7 +254,7 @@
 #define PACKAGE_NAME "Blinkhash Core"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "Blinkhash Core 0.0.1"
+#define PACKAGE_STRING "Blinkhash Core 1.0.0"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "blinkhash"
@@ -263,7 +263,7 @@
 #define PACKAGE_URL "https://blinkhash.com/"
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "22.99.0"
+#define PACKAGE_VERSION "1.0.0"
 
 /* Define to necessary symbol if this constant uses a non-standard name on
    your system. */

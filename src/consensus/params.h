@@ -22,11 +22,12 @@ constexpr bool ValidDeployment(BuriedDeployment dep) {
 
 enum DeploymentPos : uint16_t {
     DEPLOYMENT_TESTDUMMY,
+    DEPLOYMENT_HEIGHTINCB,
     // NOTE: Also add new deployments to VersionBitsDeploymentInfo in deploymentinfo.cpp
     MAX_VERSION_BITS_DEPLOYMENTS
 };
 constexpr bool ValidDeployment(DeploymentPos dep) {
-    return DEPLOYMENT_TESTDUMMY == dep;
+    return (dep >= DEPLOYMENT_TESTDUMMY) && (dep < MAX_VERSION_BITS_DEPLOYMENTS);
 };
 
 /**
@@ -65,6 +66,7 @@ struct BIP9Deployment {
  */
 struct Params {
     uint256 hashGenesisBlock;
+    int BIP34Height;
 
     /** Auxpow parameters */
     int32_t nAuxpowChainId;
@@ -110,7 +112,10 @@ struct Params {
 
     int DeploymentHeight(BuriedDeployment dep) const
     {
-        switch (dep) {} // no default case, so the compiler can warn about missing cases
+        switch (dep) {
+        case DEPLOYMENT_HEIGHTINCB:
+          return BIP34Height;
+        } // no default case, so the compiler can warn about missing cases
         return std::numeric_limits<int>::max();
     }
 
